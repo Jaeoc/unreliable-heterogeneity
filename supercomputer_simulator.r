@@ -9,10 +9,17 @@
 #****************************************
 library(parallel) #comes pre-installed with R
 
-simulate_rma <- function(k, sample_size, true_tau2, mu, reliability_min, reliability_max){
+simulate_rma <- function(effect_type = c("r", "r_z"), k, sample_size, true_tau2, mu, reliability_min, reliability_max){
  # Draw rho from mean rho
     rho <- rnorm(n = k, mean = mu, sd = sqrt(true_tau2))
-    sampling_var_rho  <- (1-rho^2)^2 / (sample_size -1)
+
+    if(effect_type == "r"){
+        sampling_var_rho  <- (1-rho^2)^2 / (sample_size -1)
+
+    }else if(effect_type == "r_z"){ #fisher's z
+
+        sampling_var_rho  <- 1 / (sample_size - 3)
+    }else{stop("specify effect type")}
 
     # given study rho, draw sample rho
     r_se <- rnorm(k, mean = rho, sd = sqrt(sampling_var_rho))
@@ -137,7 +144,7 @@ k <- 20
 true_tau2 <- seq(from = 0, to = 0.9, by = 0.1)
 mu <- 0.3
 reliability_min <- seq(from = 0.1, to = 1, by = 0.1)
-reps <- 1e4
+reps <- 1e3
 
 cond <- expand.grid(sample_size = sample_size,
                     k = k,
@@ -175,7 +182,8 @@ clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each no
                     1:reps, #looping over
                     function(iteration){ #anonymous function needed when using for replications
 
-                        simulate_rma(k = cond_r$k,
+                        simulate_rma(effect_type = "r_z",
+                                    k = cond_r$k,
                                     sample_size = cond_r$sample_size,
                                     true_tau2 = cond_r$true_tau2,
                                     mu = cond_r$mu,
@@ -194,8 +202,8 @@ e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
 names(e_means) <- c(paste0("tau2 = ", cond$true_tau2, " & reliability = ", cond$reliability_min))
 
-saveRDS(e_means, "tau2_increasing_rel.RDS")
-#lapply(e_means, round, 3)
+#saveRDS(e_means, "tau2_increasing_rel.RDS")
+lapply(e_means, round, 3)
 
 
 #****************************************
