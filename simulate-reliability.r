@@ -872,3 +872,68 @@ scale_x_continuous(breaks = seq(from = 0, to = 1, by = 0.2)) +
 theme_bw()
 
 ggsave("figures/tau2_increasing_reliability.png", width = 8.62, height = 9.93)
+
+
+# Plot perfect reliability
+
+dat2 <- readRDS("data/tau2_increasing_rel.RDS")
+
+dat2 <- lapply(dat2, function(x) as.data.frame(as.list(x)))
+
+dat_tau2 <- data.table::rbindlist(dat2, idcol = "condition")
+
+dat_tau2$true_tau2 <- gsub("&.*", "", dat_tau2$condition)
+dat_tau2$true_tau2 <- as.numeric(gsub("tau2 = ", "", dat_tau2$true_tau2))
+
+dat_tau2$reliability <- gsub(".* & reliability = ", "", dat_tau2$condition)
+dat_tau2 <- dat_tau2[dat_tau2$reliability == 1,]
+
+dat3 <- readRDS("data/tau2_increasing_fisherz.RDS")
+
+dat3 <- lapply(dat3, function(x) as.data.frame(as.list(x)))
+
+dat2_tau2 <- data.table::rbindlist(dat3, idcol = "condition")
+
+dat2_tau2$true_tau2 <- gsub("&.*", "", dat2_tau2$condition)
+dat2_tau2$true_tau2 <- as.numeric(gsub("tau2 = ", "", dat2_tau2$true_tau2))
+
+dat2_tau2$reliability <- gsub(".* & reliability = ", "", dat2_tau2$condition)
+
+dat4 <- readRDS("data/tau2_increasing_r_sampling_var_rho.RDS")
+
+dat4 <- lapply(dat4, function(x) as.data.frame(as.list(x)))
+
+dat3_tau2 <- data.table::rbindlist(dat4, idcol = "condition")
+
+dat3_tau2$true_tau2 <- gsub("&.*", "", dat3_tau2$condition)
+dat3_tau2$true_tau2 <- as.numeric(gsub("tau2 = ", "", dat3_tau2$true_tau2))
+
+dat3_tau2$reliability <- gsub(".* & reliability = ", "", dat3_tau2$condition)
+
+dat5 <- readRDS("data/tau2_increasing_fisherz_sampling_var_rho.RDS")
+
+dat5 <- lapply(dat5, function(x) as.data.frame(as.list(x)))
+
+dat4_tau2 <- data.table::rbindlist(dat5, idcol = "condition")
+
+dat4_tau2$true_tau2 <- gsub("&.*", "", dat4_tau2$condition)
+dat4_tau2$true_tau2 <- as.numeric(gsub("tau2 = ", "", dat4_tau2$true_tau2))
+
+dat4_tau2$reliability <- gsub(".* & reliability = ", "", dat4_tau2$condition)
+
+# Combining
+dat_tau2 <- rbind(dat_tau2, dat2_tau2, dat3_tau2, dat4_tau2)
+dat_tau2$condition <- rep(c("r & estimated variance",
+                            "z & estimated variance w/ rho",
+                            "r & true sampling variance",
+                            "z & true sampling variance" ), each = 10)
+
+library(ggplot2)
+ggplot(dat_tau2, aes(x = true_tau2, y = tau2_hat)) +
+geom_line(aes(color = condition)) +
+#scale_linetype_manual(values = 10:1) +
+geom_abline() +
+scale_x_continuous(breaks = seq(from = 0, to = 1, by = 0.2)) +
+theme_bw()
+
+#ggsave("figures/tau2_perfect_reliability.png", width = 8.62, height = 9.93)
