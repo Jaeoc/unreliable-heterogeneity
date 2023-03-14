@@ -188,3 +188,26 @@ ggsave("figures/plot3.png", width = 8.62, height = 9.93)
 
 
 # Plot 4
+dat <- readRDS("data/over_vs_underestimate.RDS")
+dat <- lapply(dat, function(x) as.data.frame(as.list(x)))
+
+dat <- data.table::rbindlist(dat, idcol = "mu")
+
+dat$reliability_sd <- gsub(".*& ", "", dat$mu)
+dat$reliability_sd <- gsub(".*= ", "", dat$reliability_sd)
+dat$mu <- gsub("&.*", "", dat$mu)
+dat$mu <- as.numeric(gsub("mu = ", "", dat$mu))
+
+line_labels <- dat[dat$mu == 0.6,]
+
+ggplot(dat,aes(x = mu, y = tau2_hat)) +
+geom_line(aes(linetype = reliability_sd), show.legend = FALSE) +
+#scale_linetype_manual(values = 10:1) +
+geom_text(data = line_labels, aes(x = mu, y = tau2_hat, group = reliability_sd), nudge_x = 0.025,
+label = line_labels$reliability_sd) +
+#annotate("text", x = 0.885, y = 0.086, label = "Reliability", hjust = 0) +
+geom_hline(yintercept = 0.00078, linetype = "dashed") +
+scale_x_continuous(breaks = seq(from = 0, to = 1, by = 0.2)) +
+theme_bw()
+
+ggsave("figures/plot4.png", width = 8.62, height = 9.93)
