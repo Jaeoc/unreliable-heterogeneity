@@ -44,9 +44,10 @@ simulate_rma <- function(
     if(reliability_distribution == "uniform"){
     reliabilities <- runif(k, min = reliability_min, max = reliability_max)
     } else if(reliability_distribution == "normal"){
+
         reliabilities <- rnorm(k, mean = reliability_mean, sd = reliability_sd)
+
         while(max(reliabilities > 1)){
-            print(max(reliabilities))
         reliabilities <- rnorm(k, mean = reliability_mean, sd = reliability_sd)
         }
     } #note that in the second case we stop reliabilities from superceding 1, inducing some bias in the range of reliabilities
@@ -54,7 +55,12 @@ simulate_rma <- function(
     #Compute observed r given measurement error
     r_se_me <- r_se*sqrt(reliabilities)^2
 
-    r_var_estimate <- (1-r_se_me^2)^2 / (sample_size -1) #observed estimate
+    #compute observed sampling variance estimate given measurement error
+    if(effect_type == "r") {
+        r_var_estimate <- (1-r_se_me^2)^2 / (sample_size -1)
+    }else if(effect_type == "r_z") { #fisher's z
+        r_var_estimate  <- 1 / (sample_size - 3) #= sampling_var_rho
+    }
 
     fit <- rma(yi = r_se_me, vi = r_var_estimate,
               control=list(stepadj=steplength, maxiter=maxiter))
@@ -65,8 +71,16 @@ simulate_rma <- function(
                tau2_p = fit$QEp)
 }
 
+r_to_z <- function(r){
+    z <- 0.5*log((1+r)/(1-r))
+    z
+}
+z_to_r <- function(z){
+    r <- (exp(2*z) - 1) / (exp(2*z) + 1)
+    r
+}
 #****************************************
-# Plot 1) effect size and variance in reliability estimates increase
+# Plot 1) effect size and variance in reliability estimates increase----
 #****************************************
 # For a fixed effects model this leads to an overestimate of reliability
 
@@ -148,13 +162,14 @@ end <- Sys.time()
 end - start
 
 #****************************************
-# Plot 2) as reliability decreases the underestimate becomes worse
+# Plot 2) as reliability decreases the underestimate becomes worse----
 #****************************************
 #Reliability is fixed in each study here
 
 sample_size <- 150
 k <- 20
-true_tau2 <- 0.078 #corresponds to 95% I2 according to my simulations for Pearson's r and the above sample size and k
+#true_tau2 <- 0.078 #corresponds to 95% I2 according to my simulations for Pearson's r and the above sample size and k
+true_tau2 <- 0.069 #corresponds to 90% I2 according to my simulations for Fisher's z and the above sample size and k
 mu <- seq(from = 0, to = 0.6, by = 0.1)
 #Based on the 'upper median' (83.35% quantile) from Schäfer & Schwarz for non-preregistered studies.
 reliability_min <- seq(from = 0.1, to = 1, by = 0.1)
