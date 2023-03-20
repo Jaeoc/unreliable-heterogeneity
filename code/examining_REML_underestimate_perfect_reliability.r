@@ -9,10 +9,10 @@
 #https://onlinelibrary.wiley.com/doi/10.1002/jrsm.1316
 
 
-simulate_rma_langan <- function(version = c("original", "efficient"), k = 20, true_tau2 = 0.0444, mu = 0.5, sample_size = 40){ #see section 3.1
+simulate_rma_langan <- function(version = c("original", "efficient"), k = 20, true_tau2 = 0.0444, mu = 0.5, sample_size = 20){ #see section 3.1
 
     mu_i <- rnorm(n = k, mean = mu, sd = sqrt(true_tau2))
-    n_c = n_t = rep(sample_size, 20)
+    n_c = n_t = rep(sample_size, k)
 
     if(version == "original"){
     n1 <- replicate(k, rnorm(n = sample_size, mean = 0, sd = 1), simplify = FALSE)
@@ -51,13 +51,13 @@ simulate_rma_langan <- function(version = c("original", "efficient"), k = 20, tr
 
 # Run simulation
 k = 20
-sample_size = 40
+group_sample_size = 20
 mu = 0.5
 true_tau2 = 0.991 #see Figure 1
 reps <- 1e4
 #
 
-cond <- expand.grid(sample_size = sample_size,
+cond <- expand.grid(sample_size = group_sample_size,
                     k = k,
                     true_tau2 = true_tau2,
                     mu = mu)
