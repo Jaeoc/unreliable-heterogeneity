@@ -23,10 +23,10 @@ rnorm_truncated <- function(n, mean, sd, lower_bound, upper_bound){
 simulate_rma <- function(
     effect_type = c("r", "r_z"),
     reliability_distribution = c("uniform", "normal"),
-    k,
-    sample_size,
-    true_tau2,
-    mu,
+    k, #number of studies
+    sample_size, #sample size, fixed across studies
+    true_tau2, #variance of superpopulation
+    mu, #mean of superpopulation
     reliability_min, #for uniform distribution
     reliability_max,
     reliability_mean = NULL, #for normal distribution
@@ -41,19 +41,23 @@ simulate_rma <- function(
                               lower_bound = -1, upper_bound = 1)
         sampling_var_rho  <- (1-rho^2)^2 / (sample_size -1)
 
+        # given study rho, draw sample rho
+        r_se <- rnorm_truncated(k, mean = rho, sd = sqrt(sampling_var_rho),
+                                lower_bound = -1, upper_bound = 1)
+
     }else if(effect_type == "r_z") { #fisher's z
 
         rho <- rnorm(n = k, mean = mu, sd = sqrt(true_tau2))
         sampling_var_rho  <- 1 / (sample_size - 3)
 
+        # given study rho, draw sample rho
+        r_se <- rnorm(k, mean = rho, sd = sqrt(sampling_var_rho))
+
     }else{
         stop("specify effect type")
     }
 
-    # given study rho, draw sample rho
-    r_se <- rnorm(k, mean = rho, sd = sqrt(sampling_var_rho))
-
-    #draw new reliabilities for each run to avoid some strange draw
+    #draw reliability of each study k
     if(reliability_distribution == "uniform"){
 
         reliabilities <- runif(k, min = reliability_min, max = reliability_max)
@@ -68,12 +72,15 @@ simulate_rma <- function(
     } #we sample from a truncated normal distribution, inducing some bias in the range of reliabilities, at least on the upper limit
 
     #Compute observed r given measurement error
-    #If Fisher's z transform to r before adding measurement error
+    ##If Fisher's z, transform to r before adding measurement error
     if(effect_type == "r_z"){
         r_se <- tanh(r_se)
     }
 
-    r_se_me <- r_se*sqrt(reliabilities)^2
+    ##Add the measurement error
+    ## Assume equal reliability for X and Y, then
+    ## r_xy = rho_xy * sqrt(R_xx')*sqrt(R_yy') = rho_xy * R_xx'
+    r_se_me <- r_se*reliabilities
 
     if(effect_type == "r_z"){
         #Transform back to Fisher's z
@@ -136,8 +143,9 @@ start <- Sys.time()
 ncores <- detectCores()
 cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 
-clusterEvalQ(cl, library(metafor))
+clusterEvalQ(cl, library(metafor)) #export metafor to each node
 
+# Loop over conditions, workers are split between replications within each condition
 for(r in 1:nrow(cond)){ #gives us a list of lists
 
     mes <- paste0("\n now on condition ", r)
