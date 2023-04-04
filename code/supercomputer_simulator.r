@@ -144,6 +144,8 @@ ncores <- detectCores()
 cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 
 clusterEvalQ(cl, library(metafor)) #export metafor to each node
+clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
+
 
 # Loop over conditions, workers are split between replications within each condition
 for(r in 1:nrow(cond)){ #gives us a list of lists
@@ -154,7 +156,7 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
 cond_r <- cond[r,]
 #need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
 
-clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
+clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
 
     out_list[[r]] <- parallel::parLapply(
                     cl = cl, # cluster
@@ -178,7 +180,6 @@ clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each no
 }
 stopCluster(cl) # Shut down the nodes
 
-
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
 names(e_means) <- c(paste0("mu = ", cond$mu, " & reliability_sd = ", cond$reliability_sd))
@@ -201,7 +202,7 @@ true_tau2 <- 0.078 #corresponds to 95% I2 according to my simulations for Pearso
 mu <- seq(from = 0, to = 0.6, by = 0.1)
 #Based on the 'upper median' (83.35% quantile) from Schäfer & Schwarz for non-preregistered studies.
 reliability_min <- seq(from = 1, to = 1, by = 0.1)
-reps <- 1e2
+reps <- 100
 
 cond <- expand.grid(sample_size = sample_size,
                     k = k,
@@ -221,7 +222,9 @@ ncores <- detectCores()
 cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 
 clusterEvalQ(cl, library(metafor))
+clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
+profvis::profvis({
 for(r in 1:nrow(cond)){ #gives us a list of lists
 
     mes <- paste0("\n now on condition ", r)
@@ -230,7 +233,7 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
 cond_r <- cond[r,]
 #need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
 
-clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
+clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
 
     out_list[[r]] <- parallel::parLapply(
                     cl = cl, # cluster
@@ -247,9 +250,10 @@ clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each no
                                     reliability_max = cond_r$reliability_max)
         }
     )
+    #out_list[[r]] <- colMeans(out_list[[r]])
 }
 stopCluster(cl) # Shut down the nodes
-
+})
 
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
@@ -297,6 +301,7 @@ ncores <- detectCores()
 cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 
 clusterEvalQ(cl, library(metafor))
+clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
 for(r in 1:nrow(cond)){ #gives us a list of lists
 
@@ -306,7 +311,7 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
 cond_r <- cond[r,]
 #need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
 
-clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
+clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
 
     out_list[[r]] <- parallel::parLapply(
                     cl = cl, # cluster
@@ -314,6 +319,7 @@ clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each no
                     function(iteration){ #anonymous function needed when using for replications
 
                         simulate_rma(effect_type = "r_z",
+                                    reliability_distribution = "uniform",
                                     k = cond_r$k,
                                     sample_size = cond_r$sample_size,
                                     true_tau2 = cond_r$true_tau2,
@@ -377,6 +383,7 @@ ncores <- detectCores()
 cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 
 clusterEvalQ(cl, library(metafor))
+clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
 for(r in 1:nrow(cond)){ #gives us a list of lists
 
@@ -386,7 +393,7 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
 cond_r <- cond[r,]
 #need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
 
-clusterExport(cl, ls(.GlobalEnv)) #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
+clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
 
     out_list[[r]] <- parallel::parLapply(
                     cl = cl, # cluster
