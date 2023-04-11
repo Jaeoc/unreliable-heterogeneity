@@ -215,36 +215,37 @@ cond$reliability_max <- cond$reliability_min
 out_list <- vector("list", length = nrow(cond))
 
 
-library(parabar)
+# library(parabar)
 
 start <- Sys.time()
 
 ncores <- detectCores()
-# cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
-cl <- start_backend(ncores)
+cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
+# cl <- start_backend(ncores)
 
-# clusterEvalQ(cl, library(metafor))
-# clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
+clusterEvalQ(cl, library(metafor))
+clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
-evaluate(cl, library(metafor))
-export(cl, c("simulate_rma", "rnorm_truncated"))
-peek(cl)
+# evaluate(cl, library(metafor))
+# export(cl, c("simulate_rma", "rnorm_truncated"))
+# peek(cl)
 
 for(r in 1:nrow(cond)){ #gives us a list of lists
-    progress_bar_format <- paste0(
-        "Condition ", r, "/", nrow(cond), ". [:bar] :percent [:elapsed]"
-    )
 
-    configure_bar(type = "modern", format = progress_bar_format)
+    # progress_bar_format <- paste0(
+        # "Condition ", r, "/", nrow(cond), ". [:bar] :percent [:elapsed]"
+    # )
 
-    # mes <- paste0("\n now on condition ", r)
-    # cat(mes)
+    # configure_bar(type = "modern", format = progress_bar_format)
+
+    mes <- paste0("\n now on condition ", r)
+    cat(mes)
 
     cond_r <- cond[r,]
     #need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
 
-    # clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
-    export(cl, "cond_r")
+    clusterExport(cl, "cond_r") #exported row to each node
+    # export(cl, "cond_r")
 
     task <- function(iteration){ #anonymous function needed when using for replications
         simulate_rma(effect_type = "r",
@@ -257,21 +258,22 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
             reliability_max = cond_r$reliability_max)
     }
 
-    # out_list[[r]] <- parallel::parLapply(
-    #     cl = cl, # cluster
-    #     1:reps, #looping over
-    #     task
+    out_list[[r]] <- parallel::parLapply(
+        cl = cl, # cluster
+        1:reps, #looping over
+        task
+    )
+
+    # out_list[[r]] <- parabar::par_sapply(
+    #     backend = cl, # cluster
+    #     x = 1:reps, #looping over
+    #     fun = task
     # )
 
-    out_list[[r]] <- parabar::par_sapply(
-        backend = cl, # cluster
-        x = 1:reps, #looping over
-        fun = task
-    )
 }
 
-#stopCluster(cl) # Shut down the nodes
-stop_backend(cl)
+stopCluster(cl) # Shut down the nodes
+# stop_backend(cl)
 
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
@@ -395,7 +397,6 @@ cond$reliability_min <- cond$reliability_mean
 out_list <- vector("list", length = nrow(cond))
 
 
-library(parabar)
 
 start <- Sys.time()
 
@@ -405,7 +406,7 @@ cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 clusterEvalQ(cl, library(metafor))
 clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
-for(r in 1:2){ #gives us a list of lists
+for(r in 1:nrow(cond)){ #gives us a list of lists
 
     mes <- paste0("\n now on condition ", r)
     cat(mes)
@@ -415,10 +416,10 @@ cond_r <- cond[r,]
 
 clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
 
-    out_list[[r]] <- parallell::parLapply(
-                    backend = backend, # cluster
-                    x = 1:1000, #looping over
-                    fun = function(iteration){ #anonymous function needed when using for replications
+    out_list[[r]] <- parallel::parLapply(
+                    cl = cl, # cluster
+                    1:reps, #looping over
+                    function(iteration){ #anonymous function needed when using for replications
 
                         simulate_rma(effect_type = "r",
                                     reliability_distribution = "normal",
