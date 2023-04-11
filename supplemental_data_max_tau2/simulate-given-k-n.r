@@ -6,45 +6,11 @@
 # functions and packages
 #****************************************
 
-simulate_rma_I2 <- function(effect_type = c("r", "r_z"), k, sample_size, true_tau2, mu){
-    #adjusted input and output compared to my primary function
-    #Also, only for perfect reliability, i.e., uses sampling_var_rho to estimate meta-analysis
-
- # Draw rho from mean rho and compute sampling variances
-
-    if(effect_type == "r") {
-        rho <- rnorm_truncated(n = k, mean = mu, sd = sqrt(true_tau2),
-                              lower_bound = -1, upper_bound = 1)
-        sampling_var_rho  <- (1-rho^2)^2 / (sample_size -1)
-
-        # given study rho, draw sample rho
-        r_se <- rnorm_truncated(k, mean = rho, sd = sqrt(sampling_var_rho),
-                                lower_bound = -1, upper_bound = 1)
-
-    }else if(effect_type == "r_z") { #fisher's z
-        rho <- rnorm(n = k, mean = mu, sd = sqrt(true_tau2))
-        sampling_var_rho  <- 1 / (sample_size - 3)
-
-    # given study rho, draw sample rho
-    r_se <- rnorm(k, mean = rho, sd = sqrt(sampling_var_rho))
-
-    }else{
-        stop("specify effect type")
-    }
-
-
-
-    fit <- rma(yi = r_se, vi = sampling_var_rho)
-
-    data.frame(I2 = fit$I2,
-               true_tau2 = true_tau2,
-               tau2_hat = fit$tau2,
-               tau2_p = fit$QEp)
-}
 
 library(parallel)
 #library(metafor) #is loaded through the simulation setup below
 
+source("code/functions.r") #for rnorm_truncated and simulate_rma_I2
 #****************************************
 # run simulation
 #****************************************
@@ -108,6 +74,3 @@ e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
 lapply(e_means, round, 3)
 f_means <- do.call(rbind, e_means)
-
-#saveRDS("I2_high_fisherz.RDS")
-#saveRDS("I2_high_r.RDS")
