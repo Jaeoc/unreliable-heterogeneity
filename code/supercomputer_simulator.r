@@ -197,12 +197,12 @@ end - start
 
 sample_size <- 150
 k <- 20
-true_tau2 <- 0.078 #corresponds to 95% I2 according to my simulations for Pearson's r and the above sample size and k
+true_tau2 <- c(0.002, 0.0035, 0.0055, 0.0085, 0.012, 0.0185, 0.031, 0.069) #corresponds to 95% I2 according to my simulations for Pearson's r and the above sample size and k
 #true_tau2 <- 0.069 #corresponds to 90% I2 according to my simulations for Fisher's z and the above sample size and k
 mu <- seq(from = 0, to = 0.6, by = 0.1)
 #Based on the 'upper median' (83.35% quantile) from Schäfer & Schwarz for non-preregistered studies.
 reliability_min <- seq(from = 1, to = 1, by = 0.1)
-reps <- 100
+reps <- 1e4
 
 cond <- expand.grid(sample_size = sample_size,
                     k = k,
@@ -215,55 +215,74 @@ cond$reliability_max <- cond$reliability_min
 out_list <- vector("list", length = nrow(cond))
 
 
+library(parabar)
 
 start <- Sys.time()
 
 ncores <- detectCores()
-cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
+# cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
+cl <- start_backend(ncores)
 
-clusterEvalQ(cl, library(metafor))
-clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
+# clusterEvalQ(cl, library(metafor))
+# clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
-profvis::profvis({
+evaluate(cl, library(metafor))
+export(cl, c("simulate_rma", "rnorm_truncated"))
+peek(cl)
+
 for(r in 1:nrow(cond)){ #gives us a list of lists
-
-    mes <- paste0("\n now on condition ", r)
-    cat(mes)
-
-cond_r <- cond[r,]
-#need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
-
-clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
-
-    out_list[[r]] <- parallel::parLapply(
-                    cl = cl, # cluster
-                    1:reps, #looping over
-                    function(iteration){ #anonymous function needed when using for replications
-
-                        simulate_rma(effect_type = "r",
-                                    reliability_distribution = "uniform",
-                                    k = cond_r$k,
-                                    sample_size = cond_r$sample_size,
-                                    true_tau2 = cond_r$true_tau2,
-                                    mu = cond_r$mu,
-                                    reliability_min = cond_r$reliability_min,
-                                    reliability_max = cond_r$reliability_max)
-        }
+    progress_bar_format <- paste0(
+        "Condition ", r, "/", nrow(cond), ". [:bar] :percent [:elapsed]"
     )
-    #out_list[[r]] <- colMeans(out_list[[r]])
+
+    configure_bar(type = "modern", format = progress_bar_format)
+
+    # mes <- paste0("\n now on condition ", r)
+    # cat(mes)
+
+    cond_r <- cond[r,]
+    #need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
+
+    # clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
+    export(cl, "cond_r")
+
+    task <- function(iteration){ #anonymous function needed when using for replications
+        simulate_rma(effect_type = "r",
+            reliability_distribution = "uniform",
+            k = cond_r$k,
+            sample_size = cond_r$sample_size,
+            true_tau2 = cond_r$true_tau2,
+            mu = cond_r$mu,
+            reliability_min = cond_r$reliability_min,
+            reliability_max = cond_r$reliability_max)
+    }
+
+    # out_list[[r]] <- parallel::parLapply(
+    #     cl = cl, # cluster
+    #     1:reps, #looping over
+    #     task
+    # )
+
+    out_list[[r]] <- parabar::par_sapply(
+        backend = cl, # cluster
+        x = 1:reps, #looping over
+        fun = task
+    )
 }
-stopCluster(cl) # Shut down the nodes
-})
+
+#stopCluster(cl) # Shut down the nodes
+stop_backend(cl)
 
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
-names(e_means) <- c(paste0("mu = ", cond$mu, " & reliability = ", cond$reliability_min))
+names(e_means) <- paste0("mu = ", cond$mu, ";true_tau2 = ", cond$true_tau2)
 
-#saveRDS(e_means, "reliability_underestimate.RDS")
+#saveRDS(e_means, "../data_new/reliability_1,.RDS")
 #lapply(e_means, round, 3)
 
 end <- Sys.time()
 end - start
+
 
 #****************************************
 # Plot 3) As true tau2 increases, the underestimate becomes worse
@@ -349,17 +368,17 @@ end - start
 
 
 sample_size <- 150
-k <- c(5, 20)
-true_tau2 <- 0.069 #90% I2 in Fisher's z given above N and K
+k <- 20
+true_tau2 <- c(0.002, 0.0035, 0.0055, 0.0085, 0.012, 0.0185, 0.031, 0.069)
 #Using Pearson's r as the effect size
-mu <- seq(from = 0, to = 0.9, by = 0.1) #
-mu <- atanh(mu) #Fisher's z
+mu <- seq(from = 0, to = 0.6, by = 0.1) #
+
 
 #Based on Flake et al., average alpha was .79, SD = .13, range .17 - .87
 #Based on Sanchez-Meca, mean across 5 meta-analysis was 0.767 - 0.891 and SD ranged between 0.034 - 0.133
 reliability_mean <- c(0.8, 0.9)
 reliability_sd <- seq(from = 0, to = 0.15, by = 0.05)
-reps <- 1e1
+reps <- 1e4
 
 cond <- expand.grid(sample_size = sample_size,
                     k = k,
@@ -376,6 +395,7 @@ cond$reliability_min <- cond$reliability_mean
 out_list <- vector("list", length = nrow(cond))
 
 
+library(parabar)
 
 start <- Sys.time()
 
@@ -385,7 +405,7 @@ cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 clusterEvalQ(cl, library(metafor))
 clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
-for(r in 1:nrow(cond)){ #gives us a list of lists
+for(r in 1:2){ #gives us a list of lists
 
     mes <- paste0("\n now on condition ", r)
     cat(mes)
@@ -395,12 +415,12 @@ cond_r <- cond[r,]
 
 clusterExport(cl, "cond_r") #exported everything in environment to each node, otherwise they don't have access to all functions in the master global environment
 
-    out_list[[r]] <- parallel::parLapply(
-                    cl = cl, # cluster
-                    1:reps, #looping over
-                    function(iteration){ #anonymous function needed when using for replications
+    out_list[[r]] <- parallell::parLapply(
+                    backend = backend, # cluster
+                    x = 1:1000, #looping over
+                    fun = function(iteration){ #anonymous function needed when using for replications
 
-                        simulate_rma(effect_type = "r_z",
+                        simulate_rma(effect_type = "r",
                                     reliability_distribution = "normal",
                                     k = cond_r$k,
                                     sample_size = cond_r$sample_size,
@@ -409,20 +429,18 @@ clusterExport(cl, "cond_r") #exported everything in environment to each node, ot
                                     reliability_min = cond_r$reliability_min,
                                     reliability_max = cond_r$reliability_max,
                                     reliability_mean = cond_r$reliability_mean,
-                                    reliability_sd = cond_r$reliability_sd,
-                                    steplength = 0.5,
-                                    maxiter = 1e3)
+                                    reliability_sd = cond_r$reliability_sd)
         }
     )
 }
 stopCluster(cl) # Shut down the nodes
 
-
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
-names(e_means) <- c(paste0("mu = ", cond$mu, ";reliability_sd = ", cond$reliability_sd, ";k = ", cond$k, ";mean_rel = ", cond$reliability_mean))
+names(e_means) <- c(paste0("mu = ", cond$mu, ";reliability_sd = ", cond$reliability_sd,
+                           ";mean_rel = ", cond$reliability_mean, ";true_tau2 = ", cond$true_tau2))
 
-saveRDS(e_means, "./data/test_over_vs_underestimate.RDS")
+saveRDS(e_means, "../data_new/over_vs_underestimate.RDS")
 #lapply(e_means, round, 3)
 
 end <- Sys.time()
