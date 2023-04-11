@@ -10,13 +10,11 @@
 library(parallel) #comes pre-installed with R
 #library(metafor) #loaded when setting up simulations
 
-source("code/functions.r")
+source("code/functions.r") #for rnorm_truncated and simulate_rma
 
 #****************************************
-# generate data for all conditions
+# Conditions
 #****************************************
-
-# conditions
 sample_size <- 150
 k <- 20
 true_tau2 <- c(0.002, 0.0035, 0.0055, 0.0085, 0.012, 0.0185, 0.031, 0.069)
@@ -49,7 +47,9 @@ cond$reliability_min <- cond$reliability_mean
 cond$effect_type <- "r"
 cond$reliability_distribution <- "normal"
 
+#****************************************
 # Setup parallel simulation
+#****************************************
 reps <- 1e4
 out_list <- vector("list", length = nrow(cond))
 
@@ -59,7 +59,9 @@ cl <- makePSOCKcluster(ncores) # Create cluster based on nworkers.
 clusterEvalQ(cl, library(metafor))
 clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 
-# Start simulation
+#****************************************
+# Run simulation
+#****************************************
 start <- Sys.time()
 for(r in 1:nrow(cond)){ #gives us a list of lists
 
@@ -93,13 +95,17 @@ task <- function(iteration){ #anonymous function needed when using for replicati
 }
 stopCluster(cl) # Shut down the nodes and end simulation
 
+end <- Sys.time()
+end - start
+
+#****************************************
+# Clean up and save results
+#****************************************
+
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
 names(e_means) <- c(paste0("mu = ", cond$mu, ";reliability_sd = ", cond$reliability_sd,
                            ";mean_rel = ", cond$reliability_mean, ";true_tau2 = ", cond$true_tau2))
 
-#saveRDS(e_means, "../data_new/over_vs_underestimate.RDS")
 lapply(e_means, round, 3)
-
-end <- Sys.time()
-end - start
+#saveRDS(e_means, "../data_new/over_vs_underestimate.RDS")
