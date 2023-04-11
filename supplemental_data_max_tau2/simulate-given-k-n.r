@@ -52,13 +52,10 @@ library(parallel)
 #NB! sample size and K
 sample_size <- 150
 k <- 20
-#true_tau2 <- seq(from = 0.05, to = 0.2, by = 0.001)
-#Initial experimentation suggests 90% I2 is around 0.8 and 95% around 0.15
-#EDIT: for Fisher's z the above tau2 values are ok, for Pearson's r they need to be lower, about 0.03 to 0.1. I have here used mu = 0.3/
-# To try to find low tau2 values for Pearson's r I update these values to  the below. I also set mu = 0.
-true_tau2 <- seq(from = 0.06, to = 0.08, by = 0.001)
-mu <- c(0.1)
-reps <- 1e2
+# To try to find low tau2 values for Pearson's r.
+true_tau2 <- seq(from = 0, to = 0.14, by = 0.0005)
+mu <- 0 #based on my simulations mu does not matter. Set to zero to avoid truncation.
+reps <- 1e4
 
 cond <- expand.grid(sample_size = sample_size,
                     k = k,
@@ -93,7 +90,7 @@ clusterExport(cl, "cond_r") #exported everything in environment to each node, ot
                     1:reps, #looping over
                     function(iteration){ #anonymous function needed when using for replications
 
-                        simulate_rma_I2(effect_type = "r_z",
+                        simulate_rma_I2(effect_type = "r",
                                     k = cond_r$k,
                                     sample_size = cond_r$sample_size,
                                     true_tau2 = cond_r$true_tau2,
@@ -110,6 +107,7 @@ end - start
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
 lapply(e_means, round, 3)
+f_means <- do.call(rbind, e_means)
 
 #saveRDS("I2_high_fisherz.RDS")
 #saveRDS("I2_high_r.RDS")
