@@ -36,27 +36,27 @@ geom_line(aes(x = mu, y = sqrt(tau2_hat), color = reliability_sd))
 #ggsave("figures/plot1.png", width = 8.62, height = 9.93)
 
 
-# Plot 2
+# Plot 2 original
 
-line_labels <- dat[dat$r == "0.6",]
+# line_labels <- dat[dat$r == "0.6",]
 
-ggplot(dat,aes(x = r, y = percent_tau2)) +
-geom_line(aes(linetype = reliability), show.legend = FALSE) +
-scale_linetype_manual(values = 8:1) +
-geom_label(data = line_labels, aes(x = r, y = percent_tau2, group = reliability), nudge_x = 0.025,
-label = line_labels$reliability) +
-#annotate("text", x = 0.885, y = 0.086, label = "Reliability", hjust = 0) +
-geom_hline(yintercept = 100, linetype = "dashed") +
-theme_bw()
+# ggplot(dat,aes(x = r, y = percent_tau2)) +
+# geom_line(aes(linetype = reliability), show.legend = FALSE) +
+# scale_linetype_manual(values = 8:1) +
+# geom_label(data = line_labels, aes(x = r, y = percent_tau2, group = reliability), nudge_x = 0.025,
+# label = line_labels$reliability) +
+# #annotate("text", x = 0.885, y = 0.086, label = "Reliability", hjust = 0) +
+# geom_hline(yintercept = 100, linetype = "dashed") +
+# theme_bw()
 
-ggsave("figures/plot2.png", width = 8.62, height = 9.93)
+# ggsave("figures/plot2.png", width = 8.62, height = 9.93)
 
 ## Plot 2 v2
 # That is, with perfect reliability and tau2-values of
 # c(0.002, 0.0035, 0.0055, 0.0085, 0.012, 0.0185, 0.031, 0.069)
 # (i.e, 20 - 90% I2)
 
-dat <- readRDS("data/reliability_1.RDS")
+dat <- readRDS("data/k_20_over_vs_underestimate.RDS")
 dat <- lapply(dat, function(x) as.data.frame(as.list(x)))
 
 dat <- data.table::rbindlist(dat, idcol = "mu")
@@ -66,8 +66,13 @@ conditions <- unlist(strsplit(dat$mu, split = ";"))
 
 dat$true_tau2 <- grep("true_tau2 =", conditions, value = TRUE)
 dat$true_tau2 <- as.numeric(gsub("true_tau2 = ", "", dat$true_tau2))
+dat$mean_reliability <- grep("mean_rel", conditions, value = TRUE)
+dat$mean_reliability <- gsub("mean_rel = ", "", dat$mean_reliability)
 dat$mu <- gsub(";.*", "", dat$mu)
 dat$mu <- as.numeric(gsub("mu = ", "", dat$mu))
+
+# Only extract reliability = 1
+dat <- dat[dat$mean_reliability == 1,]
 
 # Add real truncated values
 trunc <- readRDS("data/truncated_tau2.RDS")
@@ -76,9 +81,25 @@ trunc$true_tau2 <- trunc$nominal_tau2
 ggplot(dat,aes(x = mu, y = tau2_hat)) +
 geom_line() +
 geom_line(aes(x = mu, y = tau2), linetype = "dashed", data = trunc) +
-facet_wrap(~true_tau2)
+facet_wrap(~true_tau2, scales = "free")
+
+ggsave("figures/reliability_1_tau2.png", width = 8.62, height = 9.93)
+
+# Plot2 with tau instead of tau2
+dat$tau_hat <- sqrt(dat$tau2_hat)
+dat$true_tau <- round(sqrt(dat$true_tau2),3)
+trunc$true_tau <- round(sqrt(trunc$true_tau2), 3)
+trunc$tau <- sqrt(trunc$tau2)
+
+ggplot(dat,aes(x = mu, y = tau_hat)) +
+geom_line() +
+geom_line(aes(x = mu, y = tau), linetype = "dashed", data = trunc) +
+expand_limits(y = 0) +
+facet_wrap(~true_tau, scales = "free")+
+theme_bw()
 
 
+ggsave("figures/reliability_1_tau.png", width = 8.62, height = 9.93)
 
 # Plot 3
 
@@ -111,7 +132,7 @@ ggsave("figures/plot3.png", width = 8.62, height = 9.93)
 
 # Plot 4
 
-dat <- readRDS("data/over_vs_underestimate.RDS")
+dat <- readRDS("data/k_20_over_vs_underestimate.RDS")
 dat <- lapply(dat, function(x) as.data.frame(as.list(x)))
 
 dat <- data.table::rbindlist(dat, idcol = "mu")
@@ -128,26 +149,72 @@ dat$mean_reliability <- gsub("mean_rel = ", "", dat$mean_reliability)
 dat$mu <- gsub(";.*", "", dat$mu)
 dat$mu <- as.numeric(gsub("mu = ", "", dat$mu))
 
-dat$prop_tau2 <-dat$tau2_hat /  dat$true_tau2
-dat$percent_tau2 <- 100 * dat$prop_tau2
-
+# remove reliability = 1
+dat <- dat[dat$mean_reliability < 1,]
 
 line_labels <- dat[dat$mu == "0.6",]
 
+# Add real truncated values
+trunc <- readRDS("data/truncated_tau2.RDS")
+trunc$true_tau2 <- trunc$nominal_tau2
+trunc$tau2_hat <- trunc$tau2
+
+# Supplement: should do one facet plot for each mean reliability
 ggplot(dat,aes(x = mu, y = tau2_hat)) +
 geom_line(aes(linetype = mean_reliability, color = reliability_sd), show.legend = FALSE) +
+geom_line(data = trunc, color = "black", linetype = 4) +
 #scale_linetype_manual(values = 10:1) +
 geom_text(data = line_labels, aes(x = mu, y = tau2_hat, group = reliability_sd), nudge_x = 0.025,
 label = line_labels$reliability_sd) +
-facet_wrap(~true_tau2, scales = "free")
-
-#annotate("text", x = 0.885, y = 0.086, label = "Reliability", hjust = 0) +
-geom_hline(yintercept = 100, linetype = "dashed") +
-scale_x_continuous(breaks = seq(from = 0, to = 1, by = 0.2)) +
-ylim(c(0, 100)) +
+expand_limits(y = 0) +
+facet_wrap(~true_tau2, scales = "free") +
 theme_bw()
 
-ggsave("figures/plot4.png", width = 8.62, height = 9.93)
+ggsave("figures/k_20_R_0.6-0.9_tau2.png", width = 8.62, height = 9.93)
+
+## Plot 4 but with only SD = 0.15
+dat <- dat[dat$reliability_sd == "0.15",]
+line_labels <- dat[dat$mu == "0",]
+
+ggplot(dat,aes(x = mu, y = tau2_hat)) +
+geom_line(aes(linetype = mean_reliability), show.legend = FALSE) +
+geom_line(data = trunc, color = "black", linetype = 1) +
+scale_linetype_manual(values = 2:5) +
+geom_text(data = line_labels, aes(x = mu, y = tau2_hat, group = mean_reliability), nudge_x = 0.025,
+label = line_labels$mean_reliability) +
+expand_limits(y = 0) +
+facet_wrap(~true_tau2, scales = "free") +
+theme_bw()
+
+ggsave("figures/k_20_R_0.6-0.9_tau2_sd_0.15.png", width = 8.62, height = 9.93)
+
+
+# With tau instead of tau2
+dat$tau_hat <- sqrt(dat$tau2_hat)
+dat$true_tau <- round(sqrt(dat$true_tau), 3)
+trunc$tau_hat <- sqrt(trunc$tau2_hat)
+trunc$true_tau <- round(sqrt(trunc$true_tau2), 3)
+
+line_labels$tau_hat <- sqrt(line_labels$tau2_hat)
+line_labels$true_tau <- round(sqrt(line_labels$true_tau2), 3)
+
+
+
+ggplot(dat,aes(x = mu, y = tau_hat)) +
+geom_line(aes(linetype = mean_reliability), show.legend = TRUE) +
+geom_line(data = trunc, linetype = 1) +
+scale_linetype_manual(values = 2:5) +
+guides(linetype = guide_legend(reverse = TRUE)) +
+# geom_text(data = line_labels, aes(x = mu, y = tau_hat), nudge_x = -0.05,
+# label = line_labels$mean_reliability, size = 3) +
+expand_limits(y = 0) +
+facet_wrap(~true_tau, scales = "free") +
+theme_bw()
+
+
+ggsave("figures/k_20_R_0.6-0.8_tau_sd_0.15.png", width = 8.62, height = 9.93)
+
+
 
 
 # Robbie plot

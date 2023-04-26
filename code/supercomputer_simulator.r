@@ -17,16 +17,16 @@ source("code/functions.r") #for rnorm_truncated and simulate_rma
 #****************************************
 sample_size <- 150
 k <- 20
-true_tau2 <- c(0.002, 0.0035, 0.0055, 0.0085, 0.012, 0.0185, 0.031, 0.069)
+true_tau2 <- c(0, 0.002, 0.0035, 0.0055, 0.0085, 0.012, 0.0185, 0.031, 0.069)
 #Using Pearson's r as the effect size. Correspond to I2 20 - 90%.
 # Below corresponding values for k = 5
 # k <- 5
-#true_tau2 <- c(0.0015, 0.0045, 0.008, 0.013, 0.0195, 0.0315, 0.0550, 0.1245)
+#true_tau2 <- c(0, 0.0015, 0.0045, 0.008, 0.013, 0.0195, 0.0315, 0.0550, 0.1245)
 mu <- seq(from = 0, to = 0.6, by = 0.1) #
 
 #Based on Flake et al., average alpha was .79, SD = .13, range .17 - .87
 #Based on Sanchez-Meca, mean across 5 meta-analysis was 0.767 - 0.891 and SD ranged between 0.034 - 0.133
-reliability_mean <- c(0.8, 0.9, 1)
+reliability_mean <- c(0.6, 0.7, 0.8, 0.9, 1)
 reliability_sd <- seq(from = 0, to = 0.15, by = 0.05)
 
 
