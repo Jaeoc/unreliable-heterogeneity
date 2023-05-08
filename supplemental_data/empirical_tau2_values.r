@@ -8,7 +8,7 @@
 #**********************************************
 # Data downloaded from https://osf.io/p6ecw
 
-dat <- read.csv("supplemental_data_max_tau2/Data 1990-2013 with tau values.csv")
+dat <- read.csv("supplemental_data/Data 1990-2013 with tau values.csv")
 
 unique(dat$Type.of.ES)
 #also contains corrected Pearson's r
@@ -49,3 +49,19 @@ hist(dat_r$X..of.effect.sizes)
 
 dat_r_any2 <- dat_r_any[dat_r_any$X..of.effect.sizes < 1000,]
 quantile(dat_r_any2$X..of.effect.sizes)
+
+# Check correction or not
+dat_r = dat[dat$Type.of.ES %in% c("Pearson's r", "Weighted Pearson's r", "Unweighted Pearson's r"),]
+unique(dat_r$Reference) #13
+
+dat_r_corrected = dat[dat$Type.of.ES %in% c("Corrected Pearson's r", "Weighted corrected Pearson's r"),]
+unique(dat_r_corrected$Reference) #13
+
+# Corrected generally
+dat_cor <- dat[dat$Type.of.ES %in% c("Corrected Pearson's r",
+       "Weighted corrected Pearson's r",
+       "Corrected Cohen's d"),]
+unique(dat_cor$Reference) #14
+
+length(unique(dat$Reference)) - length(unique(dat))
+#49 uncorrected and 14 corrected

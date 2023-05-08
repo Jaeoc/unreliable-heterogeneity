@@ -26,6 +26,26 @@
 #****************************************
 # Functions
 #****************************************
+sampling_var <- function(rho, sample_size){
+    (1-rho^2)^2 / (sample_size -1)
+}
+
+# Apply the law of the unconscious statistician
+# to compute the expected value of the within study variance
+# so that we can account for tau
+# https://en.wikipedia.org/wiki/Law_of_the_unconscious_statistician
+
+internal <- function(x, rho, tau, sample_size){
+
+    g_x <- sampling_var(rho, sample_size)
+    f_x <- dnorm(x, mean = rho, sd = tau)
+
+    g_x * f_x #to be integrated over, see https://en.wikipedia.org/wiki/Law_of_the_unconscious_statistician
+}
+
+integrate(internal, lower = -0.99, upper = 0.99,
+           rho = rho, tau = tau, sample_size = sample_size)
+
 compute_s2 <- function(sigma2, k){
 
     wi <- rep((1 / sigma2), k)
@@ -47,8 +67,13 @@ compute_I2 <- function(vec = c(rho, tau, sample_size)){
     tau2 <- tau^2
     k <- 20 #constant, random value, doesn't matter when N is fixed across studies
 
-    sigma2  <- (1-rho^2)^2 / (sample_size -1)
+    sigma2 <- integrate(internal, #function g(x)f(x)
+                        lower = -0.99, upper = 0.99,
+                        rho = rho, tau = tau, sample_size = sample_size)
+    sigma2 <- sigma2[["value"]]
     s2 <- compute_s2(sigma2, k)
+    #this last step is superfluous, because all studies have the same weights
+    #I leave it in for clarity and in case the function is used otherwise
 
     tau2 / (s2 + tau2) #I2
 
@@ -66,6 +91,8 @@ compute_tau2_z <- function(vec = c(I2, sample_size)){
 
     I2*s2 / (1 - I2) #tau2
 }
+
+
 
 #****************************************
 # Computations
