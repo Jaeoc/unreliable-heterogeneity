@@ -132,7 +132,7 @@ ggsave("figures/plot3.png", width = 8.62, height = 9.93)
 
 # Plot 4
 
-dat <- readRDS("data/k_20_over_vs_underestimate.RDS")
+dat <- readRDS("data/k_5_k20_tau2_over_vs_underestimate.RDS")
 dat <- lapply(dat, function(x) as.data.frame(as.list(x)))
 
 dat <- data.table::rbindlist(dat, idcol = "mu")
@@ -155,7 +155,7 @@ dat <- dat[dat$mean_reliability < 1,]
 line_labels <- dat[dat$mu == "0.6",]
 
 # Add real truncated values
-trunc <- readRDS("data/truncated_tau2.RDS")
+trunc <- readRDS("data/k_20_truncated_tau2.RDS")
 trunc$true_tau2 <- trunc$nominal_tau2
 trunc$tau2_hat <- trunc$tau2
 
@@ -212,7 +212,7 @@ facet_wrap(~true_tau, scales = "free") +
 theme_bw()
 
 
-ggsave("figures/k_20_R_0.6-0.8_tau_sd_0.15.png", width = 8.62, height = 9.93)
+ggsave("figures/k_5_k20tau_R_0.6-0.9_tau_sd_0.15.png", width = 8.62, height = 9.93)
 
 
 

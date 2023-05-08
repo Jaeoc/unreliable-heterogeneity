@@ -109,8 +109,13 @@ end - start
 
 e <- lapply(out_list, function(x) do.call(rbind, x))
 e_means <- lapply(e, colMeans)
-names(e_means) <- c(paste0("mu = ", cond$mu, ";reliability_sd = ", cond$reliability_sd,
-                           ";mean_rel = ", cond$reliability_mean, ";true_tau2 = ", cond$true_tau2))
+#e_medians <- lapply(e, function(x) apply(x, 2, median))
+names(e) <- c(paste0("mu = ", cond$mu,
+                     ";k = ", cond$k,
+                     ";N = ", cond$sample_size,
+                     ";reliability_sd = ", cond$reliability_sd,
+                     ";mean_rel = ", cond$reliability_mean,
+                     ";true_tau2 = ", cond$true_tau2))
 
 lapply(e_means, round, 3)
-#saveRDS(e_means, "../data_new/over_vs_underestimate.RDS")
+#saveRDS(e, "../data_new/over_vs_underestimate.RDS")
