@@ -19,15 +19,12 @@ sample_size <- c(50, 100, 150, 200)
 k <- c(5, 20, 40, 200)
 true_tau <- c(0, 0.1, 0.15, 0.2)
 true_tau2 <- true_tau^2
-#Using Pearson's r as the effect size. Correspond to I2 20 - 90%.
-# Below corresponding values for k = 5
-# k <- 5
-#true_tau2 <- c(0, 0.0015, 0.0045, 0.008, 0.013, 0.0195, 0.0315, 0.0550, 0.1245)
-mu <- seq(from = 0, to = 0.6, by = 0.1) #
+#Using Pearson's r as the effect size.
+mu <- seq(from = 0, to = 0.6, by = 0.1)
 
 #Based on Flake et al., average alpha was .79, SD = .13, range .17 - .87
 #Based on Sanchez-Meca, mean across 5 meta-analysis was 0.767 - 0.891 and SD ranged between 0.034 - 0.133
-reliability_mean <- c(0.6, 0.7, 0.8, 0.9)
+reliability_mean <- c(0.6, 0.7, 0.8, 0.9, 1)
 reliability_sd <- seq(from = 0.15, to = 0.15, by = 0.05)
 
 
@@ -53,7 +50,7 @@ cond$maxiterations  <-  100 #default values are steplength = 1, and maxiter = 10
 #****************************************
 # Setup parallel simulation
 #****************************************
-reps <- 1e2
+reps <- 1e4
 out_list <- vector("list", length = nrow(cond))
 
 ncores <- detectCores()
@@ -65,18 +62,14 @@ clusterExport(cl, c("simulate_rma", "rnorm_truncated"))
 #****************************************
 # Run simulation
 #****************************************
+
 start <- Sys.time()
 for(r in 1:nrow(cond)){ #gives us a list of lists
 
     mes <- paste0("\n now on condition ", r)
     cat(mes)
 
-cond_r <- cond[r,]
-#need to add because otherwise the nodes don't find r. Since this happens outside the nodes.
-
-clusterExport(cl, "cond_r") #exported each row to the nodes otherwise they don't have access
-
-task <- function(iteration){ #anonymous function needed when using for replications
+task <- function(iteration, cond_r){ #anonymous function needed when using for replications
         simulate_rma(effect_type = cond_r$effect_type,
                     reliability_distribution = cond_r$reliability_distribution,
                     k = cond_r$k,
@@ -94,8 +87,9 @@ task <- function(iteration){ #anonymous function needed when using for replicati
 
     out_list[[r]] <- parallel::parLapply(
                     cl = cl, # cluster
-                    1:reps, #looping over
-                    task
+                    X = 1:reps, #looping over
+                    fun = task,
+                    cond_r = cond[r, ]
     )
 }
 stopCluster(cl) # Shut down the nodes and end simulation
@@ -107,7 +101,7 @@ end - start
 # Clean up and save results
 #****************************************
 
-e <- lapply(out_list, function(x) do.call(rbind, x))
+e <- lapply(out_list, data.table::rbindlist)
 e_means <- lapply(e, colMeans)
 #e_medians <- lapply(e, function(x) apply(x, 2, median))
 names(e) <- c(paste0("mu = ", cond$mu,
@@ -117,5 +111,5 @@ names(e) <- c(paste0("mu = ", cond$mu,
                      ";mean_rel = ", cond$reliability_mean,
                      ";true_tau2 = ", cond$true_tau2))
 
-lapply(e_means, round, 3)
+#lapply(e_means, round, 3)
 #saveRDS(e, "../data_new/over_vs_underestimate.RDS")
