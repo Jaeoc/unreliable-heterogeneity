@@ -37,14 +37,14 @@ sampling_var <- function(rho, sample_size){
 
 internal <- function(x, rho, tau, sample_size){
 
-    g_x <- sampling_var(rho, sample_size)
+    g_x <- sampling_var(x, sample_size)
     f_x <- dnorm(x, mean = rho, sd = tau)
 
     g_x * f_x #to be integrated over, see https://en.wikipedia.org/wiki/Law_of_the_unconscious_statistician
 }
 
-integrate(internal, lower = -0.99, upper = 0.99,
-           rho = rho, tau = tau, sample_size = sample_size)
+# integrate(internal, lower = -0.999, upper = 0.999,
+#            rho = rho, tau = tau, sample_size = sample_size)
 
 compute_s2 <- function(sigma2, k){
 
@@ -55,17 +55,16 @@ compute_s2 <- function(sigma2, k){
     s2_num / s2_denom #s2 out
 }
 
-compute_I2 <- function(vec = c(rho, tau, sample_size)){
-    # #rho = average true effect size
-    # #tau = SD in true effect sizes
-    # #sample_size = fixed within-study sample size
+compute_I2 <- function(vec = c(rho, tau, sample_size, k = 20)){
+    # rho = average true effect size
+    # tau = SD in true effect sizes
+    # sample_size = fixed within-study sample size
+    # k = 20: constant, random value, doesn't matter when N is fixed across studies
 
     rho <- vec[["rho"]]
     tau <- vec[["tau"]]
     sample_size <- vec[["sample_size"]]
-
     tau2 <- tau^2
-    k <- 20 #constant, random value, doesn't matter when N is fixed across studies
 
     sigma2 <- integrate(internal, #function g(x)f(x)
                         lower = -0.99, upper = 0.99,
@@ -79,15 +78,18 @@ compute_I2 <- function(vec = c(rho, tau, sample_size)){
 
 }
 
-compute_tau2_z <- function(vec = c(I2, sample_size)){
+compute_tau2_z <- function(vec = c(I2, sample_size, k = 20)){
     #I2 = I2 from pearson R
     #sample_size = fixed within-study sample size
+    # k <- 20: constant, random value, doesn't matter when N is fixed across studies
+
     I2 <- vec[["I2"]]
     sample_size <- vec[["sample_size"]]
-    k <- 20 #constant, random value, doesn't matter when N is fixed across studies
 
     sigma2  <- 1 / (sample_size - 3)
     s2 <- compute_s2(sigma2, k)
+    #this last step is superfluous, because all studies have the same weights
+    #I leave it in for clarity and in case the function is used otherwise
 
     I2*s2 / (1 - I2) #tau2
 }
