@@ -1,0 +1,4 @@
+# Gitignore file
+
+# Ignore large data-files
+data/raw*.RDS
