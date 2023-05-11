@@ -1,0 +1,111 @@
+---
+format: pdf
+---
+
+# Project: Unreliable heterogeneity
+
+```{r setup, include=FALSE}
+# Script purpose: create tables for manuscript
+# code: Anton Olsson-Collentine
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+
+library(kableExtra) #For creating good-looking pdf tables
+```
+
+
+## Table 1
+### Variance in reliability leads to positive bias in heterogeneity estimates
+
+```{r effect-size-heterogeneity-table}
+#library(kableExtra)
+rooted_relabilities <- matrix(rep(c(.6, .70,.80), 3),
+                              ncol = 3, byrow = TRUE)
+rho <- c(0.0, .30, .50)
+ma <- c("I", "II", "III")
+
+rooted_relabilities <- sweep(rooted_relabilities, 1, rho, "*")
+devs <- apply(rooted_relabilities, 1, sd)
+table1 <- data.frame(ma, rho, rooted_relabilities, devs)
+
+
+positive_bias_table <- table1 %>%
+         knitr::kable(booktabs = T, escape = FALSE, digits = 2,
+          col.names = c("Meta-Analysis",
+                        "$\\rho_{xy}$",
+                        "$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = .6",
+                        "$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = .7",
+                        "$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = .8",
+                        "SD(ES)")) %>%
+  kable_styling(position = "left") %>%
+  add_header_above(c(" " = 2, "Study 1"= 1, "Study 2" = 1, "Study 3" = 1)) %>%
+  add_header_above(c(" " = 2, "Observed Effect Sizes" = 3)) %>%
+  footnote(general = "Reproduced from Olsson Collentine et al. (2020). The values under Study 1, 2 and 3 are observed effect sizes for that study given its measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size $\\\\rho_{xy}$ when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes for meta-analysis I, II and III, equivalent to heterogeneity given infinite within-study sample sizes. Code to reproduce table: LINK",
+  threeparttable = TRUE, escape = FALSE, footnote_as_chunk = TRUE)
+
+positive_bias_table
+```
+
+
+## Table 2 (version 1)
+### Imperfect reliability leads to negative bias in heterogeneity estimates
+
+```{r negative-bias-heterogeneity}
+library(kableExtra)
+
+theta  <- matrix(rep(c(0.1, 0.15, 0.2), 3), ncol = 3, byrow = TRUE)
+R <- c(1, 0.8, 0.6)
+r <- sweep(theta, 1, R, "*")
+sds <- apply(r, 1, sd)
+
+dat <- cbind(as.character(R), r, sds)
+
+
+dat %>% knitr::kable(booktabs = TRUE, escape = FALSE, digits = 2,
+                    align=rep('c', 5),
+ col.names = c("$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$",
+               "Study 1",
+               "Study 2",
+               "Study 3",
+               "SD(ES)")) %>%
+ kable_styling(position = "left") %>%
+ add_header_above(c(" " = 1, "Observed Effect Sizes" = 3)) %>%
+ footnote(general = "The values under Study 1, 2 and 3 are observed effect sizes for that study given the measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size of that study (first row) when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes, equivalent to heterogeneity given infinite within-study sample sizes. Code to reproduce table: LINK",
+  threeparttable = TRUE, escape = FALSE, footnote_as_chunk = TRUE)
+```
+
+## Table 2 (version 2)
+### Imperfect reliability leads to negative bias in heterogeneity estimates
+
+```{r, alternative negative bias table}
+#Alternative table
+rel <- c("$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = 1",
+         "$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = 0.8",
+         "$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = 0.6")
+
+dat <- cbind(rel, r, sds)
+
+negative_bias_table <- dat %>%
+            knitr::kable(booktabs = TRUE, escape = FALSE, digits = 2,
+            col.names = c("",
+                        "Study 1",
+                        "Study 2",
+                        "Study 3",
+                        "SD(ES)")) %>%
+            kable_styling(position = "left") %>%
+            add_header_above(c(" " = 1, "Observed Effect Sizes" = 3)) %>%
+            column_spec (1, border_right = FALSE) %>%
+            footnote(general = "The values under Study 1, 2 and 3 are observed effect sizes for that study given the measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size of that study (first row) when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes, equivalent to heterogeneity given infinite within-study sample sizes. Code to reproduce table: LINK",
+  threeparttable = TRUE, escape = FALSE, footnote_as_chunk = TRUE)
+
+negative_bias_table
+```
+
+
+```{r output tables}
+#Saving the output of all tables so that they can be imported to the main manuscript easily
+
+saveRDS(list(positve_bias_table = positive_bias_table,
+             negative_bias_table = negative_bias_table),
+        "../manuscript/tables.RDS")
+```
