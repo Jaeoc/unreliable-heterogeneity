@@ -55,7 +55,7 @@ compute_s2 <- function(sigma2, k){
     s2_num / s2_denom #s2 out
 }
 
-compute_I2 <- function(vec = c(rho, tau, sample_size, k = 20)){
+compute_I2 <- function(vec = c(rho, tau, sample_size), k = 20){
     # rho = average true effect size
     # tau = SD in true effect sizes
     # sample_size = fixed within-study sample size
@@ -78,7 +78,7 @@ compute_I2 <- function(vec = c(rho, tau, sample_size, k = 20)){
 
 }
 
-compute_tau2_z <- function(vec = c(I2, sample_size, k = 20)){
+compute_tau2_z <- function(vec = c(I2, sample_size), k = 20){
     #I2 = I2 from pearson R
     #sample_size = fixed within-study sample size
     # k <- 20: constant, random value, doesn't matter when N is fixed across studies
