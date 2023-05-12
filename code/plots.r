@@ -271,7 +271,9 @@ theme_bw()
 #1) Create all Pearson's r plots
 
 
-dat <- readRDS("data/means_r_z_over_vs_underestimate.RDS")
+dat_r <- readRDS("data/means_r_over_vs_underestimate.RDS")
+dat_z <- readRDS("data/means_z_over_vs_underestimate.RDS")
+dat <- c(dat_r, dat_z)
 dat <- lapply(dat, function(x) as.data.frame(as.list(x)))
 
 dat <- data.table::rbindlist(dat, idcol = "mu")
@@ -292,7 +294,7 @@ dat$reliability_sd <- grep_strip("reliability_sd = ", conditions)
 dat$true_tau2 <- as.numeric(grep_strip("true_tau2 =", conditions)) #numeric for plotting later
 dat$mean_reliability <- grep_strip("mean_rel = ", conditions)
 dat$mu <- as.numeric(grep_strip("mu = ", conditions))
-dat$effect_type <- grep_strip("effect_tpe = ", conditions) #nb type in name!
+dat$effect_type <- grep_strip("effect_type = ", conditions)
 
 # Add real truncated values
 trunc <- readRDS("data/truncated_tau.RDS")
