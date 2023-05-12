@@ -19,22 +19,30 @@ source("code/functions.r") #for rnorm_truncated and simulate_rma
 sample_size <- c(50, 100, 150, 200)
 k <- c(5, 20, 40, 200)
 mu <- seq(from = 0, to = 0.6, by = 0.1)
-#Using Pearson's r as the effect size.
-true_tau <- c(0, 0.1, 0.15, 0.2)
-true_tau2 <- true_tau^2
-
-#Using Fisher's z as the effect size (see 'compute_tau_fisher_z.r')
-true_tau_50 <- c(0.1031263, 0.1566007, 0.2123514) #For N = 50)
-true_tau_100 <- c(0.1020357, 0.1549445, 0.2101057) #For N = 100
-true_tau_150 <- c(0.1016845, 0.1544113, 0.2093826) #For N = 150
-true_tau_200 <- c(0.1015112, 0.1541480, 0.2090256) #For N = 200
-true_tau <- c(0, true_tau_50, true_tau_100, true_tau_150, true_tau_200)
-true_tau2 <- true_tau^2
 
 #Based on Flake et al., average alpha was .79, SD = .13, range .17 - .87
 #Based on Sanchez-Meca, mean across 5 meta-analysis was 0.767 - 0.891 and SD ranged between 0.034 - 0.133
 reliability_mean <- c(0.6, 0.7, 0.8, 0.9, 1)
 reliability_sd <- seq(from = 0.15, to = 0.15, by = 0.05)
+
+effect_type  <- "r" # or r_z
+
+#Using Pearson's r as the effect size.
+true_tau <- c(0, 0.1, 0.15, 0.2)
+true_tau2 <- true_tau^2
+
+if(effect_type == "r_z"){
+    #Using Fisher's z as the effect size (see 'compute_tau_fisher_z.r')
+
+    true_tau_50 <- c(0.1031263, 0.1566007, 0.2123514) #For N = 50
+    true_tau_100 <- c(0.1020357, 0.1549445, 0.2101057) #For N = 100
+    true_tau_150 <- c(0.1016845, 0.1544113, 0.2093826) #For N = 150
+    true_tau_200 <- c(0.1015112, 0.1541480, 0.2090256) #For N = 200
+    true_tau <- c(0, true_tau_50, true_tau_100, true_tau_150, true_tau_200)
+    true_tau2 <- true_tau^2
+
+    mu <- atanh(mu)
+}
 
 
 cond <- expand.grid(sample_size = sample_size,
@@ -44,21 +52,23 @@ cond <- expand.grid(sample_size = sample_size,
                     reliability_mean = reliability_mean,
                     reliability_sd = reliability_sd)
 
-#drop cases where perfect reliability and reliability > 0
+#drop cases where perfect reliability and reliability_sd > 0
 remove_cond <- cond[["reliability_mean"]] == 1 & cond[["reliability_sd"]] > 0
 cond <- cond[!remove_cond,]
 
-#drop incorrect tau-values for fisher's z
-keep_cond <- cond[["true_tau2"]] == 0 |
-               (cond[["sample_size"]] == 50 & cond[["true_tau2"]] %in% true_tau_50^2) |
-               (cond[["sample_size"]] == 100 & cond[["true_tau2"]] %in% true_tau_100^2) |
-               (cond[["sample_size"]] == 150 & cond[["true_tau2"]] %in% true_tau_150^2) |
-               (cond[["sample_size"]] == 200 & cond[["true_tau2"]] %in% true_tau_200^2)
-cond <- cond[keep_cond,]
-
+# fisher' z
+if(effect_type == "r_z"){
+    #drop incorrect tau-values for fisher's z
+    keep_cond <- cond[["true_tau2"]] == 0 |
+                (cond[["sample_size"]] == 50 & cond[["true_tau2"]] %in% true_tau_50^2) |
+                (cond[["sample_size"]] == 100 & cond[["true_tau2"]] %in% true_tau_100^2) |
+                (cond[["sample_size"]] == 150 & cond[["true_tau2"]] %in% true_tau_150^2) |
+                (cond[["sample_size"]] == 200 & cond[["true_tau2"]] %in% true_tau_200^2)
+    cond <- cond[keep_cond,]
+}
 
 #these below are higher level control input to the function
-cond$effect_type <- "r"
+cond$effect_type <- effect_type
 cond$reliability_distribution <- "normal"
 cond$step_length  <-  0.5 #decrease from 1 to 0.5 to improve convergence for low N
 cond$maxiterations  <-  100 #default values are steplength = 1, and maxiter = 100
