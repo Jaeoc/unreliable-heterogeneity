@@ -27,6 +27,7 @@ rnorm_truncated <- function(
 simulate_rma <- function(
 
     effect_type = c("r", "r_z"),
+    method = c("Hedges", "HS"),
     reliability_distribution = c("uniform", "normal"),
     k, #number of studies
     sample_size, #sample size, fixed across studies
@@ -103,8 +104,19 @@ simulate_rma <- function(
     }
 
     # fit meta-analysis on observed values
-    fit <- rma(yi = r_se_me, vi = r_var_estimate,
+    if(method == "Hedges"){
+        fit <- rma(yi = r_se_me, vi = r_var_estimate,
+                  control=list(stepadj=steplength, maxiter=maxiter))
+
+    else if(method == "HS"){ #https://www.metafor-project.org/doku.php/tips:hunter_schmidt_method
+        r_var_estimate <- escalc(measure="COR", ri=r_se_me,
+                      ni=rep(sample_size, k), vtype="AV")[["vi"]]
+
+        fit <- rma(yi = r_se_me, vi = r_var_estimate, weights = rep(sample_size, k),
               control=list(stepadj=steplength, maxiter=maxiter))
+
+    }
+
 
     data.frame(intercept_b = fit$b,
                intercept_p = fit$pval,

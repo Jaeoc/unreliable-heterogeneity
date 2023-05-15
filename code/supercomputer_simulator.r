@@ -26,6 +26,7 @@ reliability_mean <- c(0.6, 0.7, 0.8, 0.9, 1)
 reliability_sd <- seq(from = 0.15, to = 0.15, by = 0.05)
 
 effect_type  <- "r" # or r_z
+meta_method  <- "Hedges" #or HS
 
 #Using Pearson's r as the effect size.
 true_tau <- c(0, 0.1, 0.15, 0.2)
@@ -69,6 +70,7 @@ if(effect_type == "r_z"){
 
 #these below are higher level control input to the function
 cond$effect_type <- effect_type
+cond$method  <- meta_method
 cond$reliability_distribution <- "normal"
 cond$step_length  <-  0.5 #decrease from 1 to 0.5 to improve convergence for low N
 cond$maxiterations  <-  100 #default values are steplength = 1, and maxiter = 100
@@ -133,15 +135,16 @@ end - start
 #****************************************
 
 e <- lapply(out_list, data.table::rbindlist)
-e_means <- lapply(e, colMeans)
-#e_medians <- lapply(e, function(x) apply(x, 2, median))
 names(e) <- c(paste0("mu = ", cond$mu,
                      ";k = ", cond$k,
                      ";N = ", cond$sample_size,
                      ";reliability_sd = ", cond$reliability_sd,
                      ";mean_rel = ", cond$reliability_mean,
                      ";true_tau2 = ", cond$true_tau2,
-                     "; effect_type = ", cond$effect_type))
+                     ";effect_type = ", cond$effect_type))
 
-#lapply(e_means, round, 3)
-#saveRDS(e, "../data_new/over_vs_underestimate.RDS")
+e_means <- lapply(e, colMeans)
+#e_medians <- lapply(e, function(x) apply(x, 2, median))
+
+#saveRDS(e, "../data_new/raw_over_vs_underestimate.RDS")
+#saveRDS(e_means, "../data_new/means_over_vs_underestimate.RDS")
