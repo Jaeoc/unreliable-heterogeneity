@@ -1,34 +1,6 @@
 
 
-
-dat <- matrix(c("University_1","130","0.24","0.75",
-"University_2","90","0.11","0.75",
-"Private_1","30","0.05","0.60",
-"Private_2","25","0.17","0.60",
-"Volunteer_1","50","0.38","0.90",
-"Volunteer_2","65","0.50","0.90"), nrow = 6, byrow = TRUE)
-
-dat <- as.data.frame(dat)
-names(dat) <- c("study", "n", "r", "rel")
-
-dat$r <- as.numeric(dat$r)
-dat$rel <- as.numeric(dat$rel)
-dat$n <- as.numeric(dat$n)
-dat$r_var <- (1 - dat$r^2)^2 / (dat$n - 1)
-
-dat$rho <- dat$r / sqrt(dat$rel)
-dat$rho_var <- (1 - dat$rho^2)^2 / (dat$n - 1)
-
-dat$rho_var2 <- dat$r_var / sqrt(dat$rel)
-#estimate rho var based on observed r
-
-library(metafor)
-rma(yi = dat$r, vi = dat$r_var)
-rma(yi = dat$rho, vi = dat$rho_var)
-
-rma(yi = dat$rho, vi = dat$rho_var2)
-# If I use the variance based on the estimated r
-# I get smaller heterogeneity with true effect sizes!
+# Brannick et al., simulation
 
 # 2 ideas that might be the difference
 # a) add measurement error before sampling error
@@ -40,7 +12,6 @@ rma(yi = dat$rho, vi = dat$rho_var2)
 # code below and there is still an underestimate when using
 # meta-analyzing unreliabile data
 
-# Brannick et al., simulation
 TxTy <- rnorm(10, mean = .26, sd = .13)
 rel_x <- runif(10, min = 0, max = 1)
 rel_y <- runif(10, min = 0, max = 1)
