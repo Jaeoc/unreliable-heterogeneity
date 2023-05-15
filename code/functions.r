@@ -108,7 +108,7 @@ simulate_rma <- function(
         fit <- rma(yi = r_se_me, vi = r_var_estimate,
                   control=list(stepadj=steplength, maxiter=maxiter))
 
-    else if(method == "HS"){ #https://www.metafor-project.org/doku.php/tips:hunter_schmidt_method
+    }else if(method == "HS"){ #https://www.metafor-project.org/doku.php/tips:hunter_schmidt_method
         r_var_estimate <- escalc(measure="COR", ri=r_se_me,
                       ni=rep(sample_size, k), vtype="AV")[["vi"]]
 

@@ -141,7 +141,8 @@ names(e) <- c(paste0("mu = ", cond$mu,
                      ";reliability_sd = ", cond$reliability_sd,
                      ";mean_rel = ", cond$reliability_mean,
                      ";true_tau2 = ", cond$true_tau2,
-                     ";effect_type = ", cond$effect_type))
+                     ";effect_type = ", cond$effect_type,
+                     ";method = ", cond$method))
 
 e_means <- lapply(e, colMeans)
 #e_medians <- lapply(e, function(x) apply(x, 2, median))
