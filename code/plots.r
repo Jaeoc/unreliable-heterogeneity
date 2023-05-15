@@ -273,6 +273,7 @@ theme_bw()
 
 dat_r <- readRDS("data/means_r_over_vs_underestimate.RDS")
 dat_z <- readRDS("data/means_z_over_vs_underestimate.RDS")
+
 dat <- c(dat_r, dat_z)
 dat <- lapply(dat, function(x) as.data.frame(as.list(x)))
 
@@ -370,3 +371,46 @@ facet_grid(N~true_tau, scales = "free") +
 theme_bw()
 
 ggsave("figures/z_k_20_0.6-0.9_tau_sd_0.15.png", width = 8.62, height = 9.93)
+
+
+
+#****************************************
+# supplemental plots + fisher's z
+#****************************************
+dat_20_150 <- dat[dat$k == 20 & dat$N == 150,]
+
+# For fisher's z there is no truncation,
+# hack the trunc dataframe for the plot
+trunc$effect_type  <- "Pearson's r"
+trunc <- rbind(trunc, trunc)
+trunc[29:56, "effect_type"] <- "Fisher's z"
+
+dat_z <- dat_20_150[dat_20_150$effect_type == "r_z"]
+trunc$tau_hat[29:56] <- rep(unique(dat_z$true_tau), each = 7)
+
+dat_20_150$true_tau <- ifelse(dat_20_150$effect_type == "r_z",
+                              trunc(dat_20_150$true_tau *100) / 100,
+                              dat_20_150$true_tau)
+
+
+# What I've done in the above to lines of code is to
+# 1) put the 'truncated' true_tau for r_z to fisher z nominal value
+# 2) put the 'true tau' in the main data object to the nominal r value
+# This helps with the facet_grid to make the plot look nice
+# But changes the interpretation of the black line for fisher z
+# Does it? It is still the true heterogeneity
+
+# More plot prep
+dat_20_150$effect_type <- ifelse(dat_20_150$effect_type == "r_z",
+                                "Fisher's z",
+                                "Pearson's r")
+
+
+ggplot(dat_20_150, aes(x = mu, y = tau_hat)) +
+geom_line(aes(linetype = mean_reliability), show.legend = TRUE) +
+geom_line(data = trunc, linetype = 1) +
+scale_linetype_manual(values = 2:5) +
+guides(linetype = guide_legend(reverse = TRUE)) +
+expand_limits(y = 0) +
+facet_grid(effect_type~true_tau, scales = "free", switch = "y") +
+theme_bw()
