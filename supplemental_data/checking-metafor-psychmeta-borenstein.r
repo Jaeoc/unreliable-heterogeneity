@@ -84,8 +84,7 @@ dat <- matrix(c("University_1","130","0.24","0.75",
 
 dat <- as.data.frame(dat)
 names(dat) <- c("study", "n", "r", "ryy")
-dat <- cbind(dat, 1)
-names(dat)[5] <- "rxx"
+dat$rxx <-  1
 
 dat$r <- as.numeric(dat$r)
 dat$ryy <- as.numeric(dat$ryy)
