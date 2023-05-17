@@ -163,3 +163,25 @@ simulate_rma_I2 <- function(effect_type = c("r", "r_z"), k, sample_size, true_ta
                tau2_hat = fit$tau2,
                tau2_p = fit$QEp)
 }
+
+
+# Compute variance of a truncated normal distribution
+compute_var_truncated <- function(mu, nominal_tau, a = -1, b = 1){
+# Formula from wikipedia (double-check): https://en.wikipedia.org/wiki/Truncated_normal_distribution
+
+    #mu = mean of distribution before truncation
+    #nominal_tau = standard deviation of distribution before truncation
+    #a  = lower bound of truncation
+    #b = upper bound of truncation
+
+    alpha <- (a - mu) / nominal_tau
+    beta <-  (b - mu) / nominal_tau
+
+    denom <- pnorm(beta) - pnorm(alpha)
+    num1 <- beta*dnorm(beta) - alpha*dnorm(alpha)
+    num2 <- dnorm(beta) - dnorm(alpha)
+    true_tau2 <- nominal_tau^2 * (1 - num1/denom - (num2 / denom)^2)
+
+    sqrt(true_tau2) #out true_tau
+
+}
