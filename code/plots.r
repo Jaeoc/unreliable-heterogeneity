@@ -4,16 +4,12 @@
 
 
 #****************************************
-# functions
+# functions and packages
 #****************************************
 
+source("./code/functions.r") # for plot prep functions
 
-source("./code/functions.r") # for function compute_var_truncated
-#****************************************
-# plotting
-#****************************************
-
-library(ggplot2)
+library(ggplot2) #for plotting
 
 #****************************************
 # General plot prep
