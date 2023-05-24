@@ -15,19 +15,11 @@ library(ggplot2) #for plotting
 # General plot prep
 #****************************************
 
-
-
 dat_r <- readRDS("data/means_r_over_vs_underestimate.RDS")
 dat_z <- readRDS("data/means_z_over_vs_underestimate.RDS")
 dat_hs <- readRDS("data/means_r_HS_over_vs_underestimate.RDS")
 
 dat <- c(dat_r, dat_z, dat_hs)
-dat <- lapply(dat, function(x) as.data.frame(as.list(x)))
-
-dat <- data.table::rbindlist(dat, idcol = "mu")
-
-#create condition ids
-dat <- create_condition_cols(dat)
 
 # Add real truncated values
 es <- seq(0, 0.6, 0.1)
@@ -122,8 +114,10 @@ ggsave("figures/z-r-hs-plot.png", width = 8.62, height = 9.93)
 #****************************************
 # Main plot 2 (r, N = 150, k variable, tau low)
 #****************************************
-dat_r_low <- readRDS("data/means_r_borderline_estimate_tau0.02-0.08.RDS")
-dat_r <- readRDS("data/means_r_over_vs_underestimate.RDS")
+dat_r_low <- readRDS("data/means_r_tau_0.02-0.08.RDS")
+dat_r <- readRDS("data/means_r_tau_0-0.2.RDS")
+
+#The following line needs to be updated!
 dat_r_zero <- dat_r[grep("true_tau2 = 0;", names(dat_r))]
 
 dat <- c(dat_r_zero, dat_r_low)

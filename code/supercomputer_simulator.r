@@ -144,8 +144,5 @@ names(e) <- c(paste0("mu = ", cond$mu,
                      ";effect_type = ", cond$effect_type,
                      ";method = ", cond$method))
 
-e_means <- lapply(e, colMeans)
-#e_medians <- lapply(e, function(x) apply(x, 2, median))
 
-#saveRDS(e, "../data_new/raw_over_vs_underestimate.RDS")
-#saveRDS(e_means, "../data_new/means_over_vs_underestimate.RDS")
+#saveRDS(e, "../data_new/raw_r_tau_0-0.2.RDS")
