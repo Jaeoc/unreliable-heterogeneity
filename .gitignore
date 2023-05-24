@@ -2,3 +2,4 @@
 
 # Ignore large data-files
 data/raw*.RDS
+data/cleaned*.RDS
