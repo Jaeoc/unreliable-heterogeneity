@@ -64,8 +64,34 @@ bias_increasing_tau <- list(tau_0.1 = res_0.1,
                             tau_0.15 = res_0.15,
                             tau_0.2 = res_0.2)
 
+
+#*[1.3] bias when mu = 0.2 and tau => 0.1 ----
+#****************************************
+dat02 <- dat[dat$mu == 0.2 & dat$true_tau > 0,]
+dat02$prop <- dat02$tau_hat / dat02$true_tau
+
+dat02$underestimate <- 1 - dat02$prop
+
+#"heterogeneity can be expected to be underestimated by XX%"
+underestimate_min <- data.frame(dat02[which.min(dat02$underestimate),
+ c("true_tau", "mean_rel", "underestimate")])
+
+underestimate_max <- data.frame(dat02[which.max(dat02$underestimate),
+ c("true_tau", "mean_rel", "underestimate")])
+
+underestimate_mu02 <- list(underestimate_min = underestimate_min,
+                           underestimate_max = underestimate_max)
+
+
+#*[1.3] bias when mu = 0.2 and tau => 0.1 ----
+#****************************************
+#****************************************
+# [2] Output
+#****************************************
+
 saveRDS(list(
     bias_tau_zero = bias_tau_zero,
-    bias_increasing_tau = bias_increasing_tau),
+    bias_increasing_tau = bias_increasing_tau,
+    underestimate_mu02 = underestimate_mu02),
     file = "./manuscript/in-text-values.RDS"
 )
