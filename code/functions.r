@@ -28,15 +28,12 @@ simulate_rma <- function(
 
     effect_type = c("r", "r_z"),
     method = c("Hedges", "HS"),
-    reliability_distribution = c("uniform", "normal"),
     k, #number of studies
     sample_size, #sample size, fixed across studies
     true_tau2, #variance of superpopulation
     mu, #mean of superpopulation
-    reliability_min, #for uniform distribution
-    reliability_max,
-    reliability_mean = NULL, #for normal distribution
-    reliability_sd = NULL,
+    reliability_mean, #for normal distribution
+    reliability_sd,
     steplength = 1, #these are for controlling the fisher algorithm in rma
     maxiter = 100){ #these are the default values in the function: https://www.metafor-project.org/doku.php/tips:convergence_problems_rma
 
@@ -67,18 +64,13 @@ simulate_rma <- function(
     }
 
     #draw reliability of each study k
-    if(reliability_distribution == "uniform"){
 
-        reliabilities <- runif(k, min = reliability_min, max = reliability_max)
-
-    } else if(reliability_distribution == "normal"){
-
-        reliabilities <- rnorm_truncated(n = k,
-         mean = reliability_mean,
-         sd = reliability_sd,
-         lower_bound = 0,
-         upper_bound = 1)
-    } #we sample from a truncated normal distribution, inducing some bias in the range of reliabilities, at least on the upper limit
+    reliabilities <- rnorm_truncated(n = k,
+                                    mean = reliability_mean,
+                                    sd = reliability_sd,
+                                    lower_bound = 0,
+                                    upper_bound = 1)
+     #we sample from a truncated normal distribution, inducing some bias in the range of reliabilities, at least on the upper limit
 
     #Compute observed r given measurement error
     ##If Fisher's z, transform to r before adding measurement error
