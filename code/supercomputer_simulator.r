@@ -8,8 +8,11 @@
 # libraries and functions
 #****************************************
 library(parabar) #for a progress-bar in parallel computing
+library(data.table) #to bind lists into dataframe efficiently
+# I load these here because using :: slows down the simulation substantially
 # library(parallel) #comes pre-installed with R
 #library(metafor) #loaded when setting up simulations
+
 
 source("code/functions.r") #for rnorm_truncated and simulate_rma
 
@@ -96,11 +99,11 @@ parabar::export(cl, c("simulate_rma", "rnorm_truncated"))
 start <- Sys.time()
 for(r in 1:nrow(cond)){ #gives us a list of lists
 
-    progress_bar_format <- paste0(
+    progress_bar_format <- paste0( #for parabar
         "Condition ", r, "/", nrow(cond), ". [:bar] :percent [:elapsed]"
     )
 
-    parabar::configure_bar(type = "modern", format = progress_bar_format)
+    configure_bar(type = "modern", format = progress_bar_format) #from parabar
 
     task <- function(iteration, cond_r){ #anonymous function needed when using for replications
                 simulate_rma(effect_type = cond_r$effect_type,
@@ -118,31 +121,31 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
         }
 
 
-    out_list[[r]] <- parabar::par_lapply(
+    out_list[[r]] <- par_lapply( #function from parabar
                     backend = cl, # cluster
                     x = 1:reps, #looping over
                     fun = task,
                     cond_r = cond[r, ]
     )
+
+    #Compute the mean across replications for the condition and add condition identifiers
+    out_list[[r]] <- rbindlist(out_list[[r]]) #function from data.table
+    out_list[[r]] <- out_list[[r]][, lapply(.SD, mean)] #data.table colMeans but returns a dataframe (well, data.table)
+    out_list[[r]] <- cbind(out_list[[r]], cond[r,])
+
+
 }
+
 stop_backend(cl) # Shut down the nodes and end simulation
 
 end <- Sys.time()
 end - start
 
+
 #****************************************
 # Clean up and save results
 #****************************************
 
-e <- lapply(out_list, data.table::rbindlist)
-names(e) <- c(paste0("mu = ", cond$mu,
-                     ";k = ", cond$k,
-                     ";N = ", cond$sample_size,
-                     ";reliability_sd = ", cond$reliability_sd,
-                     ";mean_rel = ", cond$reliability_mean,
-                     ";true_tau2 = ", cond$true_tau2,
-                     ";effect_type = ", cond$effect_type,
-                     ";method = ", cond$method))
-
+e <- rbindlist(out_list)
 
 #saveRDS(e, "../data_new/raw_r_tau_0-0.2.RDS")
