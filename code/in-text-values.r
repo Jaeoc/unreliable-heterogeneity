@@ -83,8 +83,38 @@ underestimate_mu02 <- list(underestimate_min = underestimate_min,
                            underestimate_max = underestimate_max)
 
 
-#*[1.3] bias when mu = 0.2 and tau => 0.1 ----
 #****************************************
+# [2] Discussion
+#****************************************
+k  <- 12
+
+sample_size = 150
+mu <- 0
+true_tau2 <- 0.17^2
+
+quick_sim <- function(k, sample_size, mu, true_tau2){
+    rho <- rnorm_truncated(n = k, mean = mu, sd = sqrt(true_tau2),
+                            lower_bound = -1, upper_bound = 1)
+    sampling_var_rho  <- (1-rho^2)^2 / (sample_size -1)
+
+    # given study rho, draw sample rho
+    r_se <- rnorm_truncated(k, mean = rho, sd = sqrt(sampling_var_rho),
+                            lower_bound = -1, upper_bound = 1)
+    r_var_estimate <- (1-r_se^2)^2 / (sample_size -1)
+    fit <- metafor::rma(yi = r_se, vi = r_var_estimate)
+
+    cis <- confint(fit)
+
+    CI_range <- cis$random[2, 3] - cis$random[2, 2]
+
+    CI_range
+}
+
+quick_sim(k = k, sample_size = sample_size, mu = mu, true_tau2 = true_tau2)
+
+set.seed(1532)
+res <- replicate(1e4, quick_sim(k = k, sample_size = sample_size, mu = mu, true_tau2 = true_tau2))
+median(res)
 #****************************************
 # [2] Output
 #****************************************
