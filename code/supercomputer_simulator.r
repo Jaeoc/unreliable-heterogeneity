@@ -26,10 +26,10 @@ mu <- seq(from = 0, to = 0.6, by = 0.1)
 #Based on Flake et al., average alpha was .79, SD = .13, range .17 - .87
 #Based on Sanchez-Meca, mean across 5 meta-analysis was 0.767 - 0.891 and SD ranged between 0.034 - 0.133
 reliability_mean <- c(0.6, 0.7, 0.8, 0.9, 1)
-reliability_sd <- seq(from = 0.05, to = 0.15, by = 0.05)
+reliability_sd <- seq(from = 0, to = 0.15, by = 0.05)
 
 effect_type  <- "r" # or r_z
-meta_method  <- "Hedges" #or HS
+meta_method  <- "HV" #or HS
 
 #Using Pearson's r as the effect size.
 true_tau <- c(0, 0.1, 0.15, 0.2)
@@ -128,6 +128,17 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
     out_list[[r]] <- out_list[[r]][, lapply(.SD, mean)] #data.table colMeans but returns a dataframe (well, data.table)
     out_list[[r]] <- cbind(out_list[[r]], cond[r,])
 
+    if(r %% 1000 == 0 | r == nrow(cond)){ #if even thousand or simulation finished
+
+        e <- rbindlist(out_list[r-999:r])
+
+        file_name <- paste0("../data/", effect_type, "_",
+                            meta_method, "_means_cond_", r-999,"-", r, ".csv")
+        fwrite(x = e, file = file_name)
+
+        rm(e)
+    }
+
 
 }
 
@@ -141,16 +152,6 @@ end - start
 # Clean up and save results
 #****************************************
 
-e <- rbindlist(out_list)
+#e <- rbindlist(out_list)
 
 #saveRDS(e, "../data_new/raw_r_tau_0-0.2.RDS")
-
-    if(r %% 1000 == 0 | r == nrow(cond)){ #if even thousand or simulation finished
-
-        e <- rbindlist(out_list[r-999:r])
-
-        file_name <- paste0("../data/simulation_means_cond_", r-999,"-", r, ".csv")
-        fwrite(x = e, file = file_name)
-
-        rm(e)
-    }

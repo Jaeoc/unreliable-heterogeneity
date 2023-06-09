@@ -27,7 +27,7 @@ rnorm_truncated <- function(
 simulate_rma <- function(
 
     effect_type = c("r", "r_z"),
-    method = c("Hedges", "HS"),
+    method = c("HV", "HS"), #Hedges & Vevea or Hunter & Schmidt
     k, #number of studies
     sample_size, #sample size, fixed across studies
     true_tau2, #variance of superpopulation
@@ -96,7 +96,7 @@ simulate_rma <- function(
     }
 
     # fit meta-analysis on observed values
-    if(method == "Hedges"){
+    if(method == "HV"){
         fit <- rma(yi = r_se_me, vi = r_var_estimate,
                   control=list(stepadj=steplength, maxiter=maxiter))
 
