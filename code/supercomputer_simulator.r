@@ -128,14 +128,16 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
     out_list[[r]] <- out_list[[r]][, lapply(.SD, mean)] #data.table colMeans but returns a dataframe (well, data.table)
     out_list[[r]] <- cbind(out_list[[r]], cond[r,])
 
-    if(r %% 1000 == 0 | r == nrow(cond)){ #if even thousand or simulation finished
+    if(r %% 1000 == 0 | r == nrow(cond)){
+         #if even thousand or simulation finished
+         #turn results into dataframe and save as csv
 
         e <- rbindlist(out_list[r-999:r])
 
         file_name <- paste0("../data/", effect_type, "_",
                             meta_method, "_means_cond_", r-999,"-", r, ".csv")
-        fwrite(x = e, file = file_name)
 
+        fwrite(x = e, file = file_name)
         rm(e)
     }
 
