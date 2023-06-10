@@ -17,18 +17,18 @@ library(data.table) #to bind lists into dataframe efficiently
 source("code/functions.r") #for rnorm_truncated and simulate_rma
 
 #****************************************
-# Conditions
+# Full conditions
 #****************************************
 sample_size <- c(50, 100, 150, 200)
 k <- c(5, 20, 40, 200)
 reliability_mean <- c(0.6, 0.7, 0.8, 0.9, 1)
 reliability_sd <- seq(from = 0, to = 0.15, by = 0.05)
 
-mu <- seq(from = 0, to = 0.6, by = 0.2)
+mu <- seq(from = 0, to = 0.6, by = 0.1)
 
 #Using Pearson's r as the effect size.
 effect_type  <- "r" #
-meta_method  <- c("HV", "HS") #Hedges & Vevea and Hunter & Schmidt
+r_method  <- c("HV", "HS") #Hedges & Vevea and Hunter & Schmidt
 
 true_tau <- c(0, 0.1, 0.15, 0.2)
 true_tau2 <- true_tau^2
@@ -40,11 +40,11 @@ r_cond <- expand.grid(sample_size = sample_size,
                     reliability_mean = reliability_mean,
                     reliability_sd = reliability_sd,
                     effect_type = effect_type,
-                    method = meta_method)
+                    method = r_method)
 
 # Using Fisher' z as the effect size
 effect_type  <- "r_z"
-meta_method  <- "HV"
+z_method  <- "HV"
 
 mu <- atanh(mu)
 
@@ -63,7 +63,7 @@ z_cond <- expand.grid(sample_size = sample_size,
                     reliability_mean = reliability_mean,
                     reliability_sd = reliability_sd,
                     effect_type = effect_type,
-                    method = meta_method)
+                    method = z_method)
 
 #drop incorrect tau-values for fisher's z
 keep_cond <- z_cond[["true_tau2"]] == 0 |
@@ -85,11 +85,56 @@ cond$step_length  <-  0.5 #decrease from 1 to 0.5 to improve convergence for low
 cond$maxiterations  <-  100 #default values are steplength = 1, and maxiter = 100
 
 #****************************************
+# Subset conditions
+#****************************************
+#1) Figure 1 main manuscript
+cond1 <- cond[cond$sample_size == 150 &
+              cond$k == 20 &
+              cond$reliability_sd ==0.15,]
+
+#2) Figure 2 main manuscript
+true_tau <- c(0.02, 0.04, 0.06, 0.08) #NB! different tau2!
+true_tau2 <- true_tau^2
+
+cond2 <- cond[cond$sample_size == 150 &
+              cond$reliability_sd ==0.15 &
+              cond$method == "HV" &
+              cond$effect_type == "r",]
+cond2$true_tau2 <- rep(true_tau2, each = 4)
+
+# Supplement A (variance in reliabilities)
+cond3 <- cond[cond$k == 20 &
+              cond$sample_size == 150 &
+              cond$method == "HV" &
+              cond$effect_type == "r",]
+
+# Supplement B (variable K)
+cond4 <- cond[cond$sample_size == 150 &
+              cond$reliability_sd == 0.15 &
+              cond$method == "HV" &
+              cond$effect_type == "r",]
+
+# Supplement C (variable sample size)
+cond5 <- cond[cond$k == 20 &
+              cond$reliability_sd == 0.15 &
+              cond$method == "HV" &
+              cond$effect_type == "r",]
+
+#****************************************
+# Conditions run
+#****************************************
+cond <- rbind(cond1, cond2, cond3, cond4, cond5)
+
+save_points_subset <- cumsum(sapply(list(cond1, cond2, cond3, cond4, cond5), nrow))
+
+#****************************************
 # Setup parallel simulation
 #****************************************
 reps <- 1e4
 out_list <- vector("list", length = nrow(cond))
 last_save <- 0 #last condition row that was saved, see end of simulation below
+# save_points <- 1000 #save simulation results after how many conditions have run
+save_points <- save_point_subset
 
 ncores <-parallel::detectCores()
 cl <- parabar::start_backend(ncores) # Create cluster based on nworkers.
@@ -137,8 +182,8 @@ for(r in last_save+1:nrow(cond)){ #gives us a list of lists
     out_list[[r]] <- out_list[[r]][, lapply(.SD, mean)] #data.table colMeans but returns a dataframe (well, data.table)
     out_list[[r]] <- cbind(out_list[[r]], cond[r,], non_converged)
 
-    if(r %% 1000 == 0 | r == nrow(cond)){
-         #if even thousand or simulation finished
+    if(r %in% save_points | r == nrow(cond)){
+         #if reached a save point or simulation finished
          #turn results into dataframe and save as csv
 
         save_range <- last_save + 1:r
