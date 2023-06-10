@@ -134,7 +134,7 @@ reps <- 1e4
 out_list <- vector("list", length = nrow(cond))
 last_save <- 0 #last condition row that was saved, see end of simulation below
 # save_points <- 1000 #save simulation results after how many conditions have run
-save_points <- save_point_subset
+save_points <- save_points_subset
 
 ncores <-parallel::detectCores()
 cl <- parabar::start_backend(ncores) # Create cluster based on nworkers.
