@@ -125,53 +125,9 @@ simulate_rma <- function(
     }
 }
 
-do_this <- function(input){
-    if(input > 0){
-        a = 3
-    }else{
-        a = NULL
-    }
-if(is.null(a)){
-    return()
-} else{
-    data.frame(1, 2)
-}
-}
 #****************************************
 # Plot prep functions
 #****************************************
-
-grep_strip <- function(string, vec){
-    #Uses a common string like "k = " to extract "k = 50" or "k = 200"
-    #Then removes the "k = " part and returns as character
-    a <- grep(string, vec, value = TRUE)
-    gsub(string, "", a)
-}
-
-create_condition_cols <- function(data){
-
-    #takes a data frame as input with a column named "mu"
-    #in which all conditions are separated by a semicolon
-    # Then creates new columns named after each condition
-
-    #split all conditions into a character vector
-    conditions <- unlist(strsplit(data$mu, split = ";"))
-    #select all unique condition factors (e.g., mu, k, N)
-    category <- unique(gsub("=.*", "= ", conditions))
-    # Remove equal sign to column names (kept above in case some condition name include 'k')
-    col_name <- gsub(" = ", "", category)
-
-    for(g in 1:length(category)){
-
-        #This loop is equivalent to the line below, but applied to all conditions
-        # data$k <- grep_strip("k = ", conditions)
-
-        data[[col_name[g]]] <- grep_strip(category[g], conditions)
-
-    }
-
-    data #out
-}
 
 # Compute variance of a truncated normal distribution
 compute_var_truncated <- function(mu, nominal_tau, a = -1, b = 1){
