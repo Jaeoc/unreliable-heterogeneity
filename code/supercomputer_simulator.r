@@ -20,7 +20,7 @@ source("code/functions.r") #for rnorm_truncated and simulate_rma
 # Conditions
 #****************************************
 sample_size <- c(50, 100, 150, 200)
-k <- c(5, 20, 40, 200)
+k <- c(5, 20, 40)
 mu <- seq(from = 0, to = 0.6, by = 0.1)
 
 #Based on Flake et al., average alpha was .79, SD = .13, range .17 - .87
@@ -87,7 +87,7 @@ ncores <-parallel::detectCores()
 cl <- parabar::start_backend(ncores) # Create cluster based on nworkers.
 
 parabar::evaluate(cl, library(metafor))
-parabar::export(cl, c("simulate_rma", "rnorm_truncated"))
+parabar::export(cl, c("simulate_rma", "rnorm_truncated", "try_run"))
 
 #****************************************
 # Run simulation
@@ -125,21 +125,22 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
 
     #Compute the mean across replications for the condition and add condition identifiers
     out_list[[r]] <- rbindlist(out_list[[r]]) #function from data.table
+    non_converged <- reps - nrow(out_list[[r]])
     out_list[[r]] <- out_list[[r]][, lapply(.SD, mean)] #data.table colMeans but returns a dataframe (well, data.table)
-    out_list[[r]] <- cbind(out_list[[r]], cond[r,])
+    out_list[[r]] <- cbind(out_list[[r]], cond[r,], non_converged)
 
-    if(r %% 1000 == 0 | r == nrow(cond)){
-         #if even thousand or simulation finished
-         #turn results into dataframe and save as csv
+    # if(r %% 1000 == 0 | r == nrow(cond)){
+    #      #if even thousand or simulation finished
+    #      #turn results into dataframe and save as csv
 
-        e <- rbindlist(out_list[r-999:r])
+    #     e <- rbindlist(out_list[r-999:r])
 
-        file_name <- paste0("../data/", effect_type, "_",
-                            meta_method, "_means_cond_", r-999,"-", r, ".csv")
+    #     file_name <- paste0("../data/", effect_type, "_",
+    #                         meta_method, "_means_cond_", r-999,"-", r, ".csv")
 
-        fwrite(x = e, file = file_name)
-        rm(e)
-    }
+    #     fwrite(x = e, file = file_name)
+    #     rm(e)
+    # }
 
 
 }

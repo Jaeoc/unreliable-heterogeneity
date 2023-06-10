@@ -24,6 +24,12 @@ rnorm_truncated <- function(
     qnorm(trunc_norm, mean = mean, sd = sd)
 }
 
+try_run <- function(code, silent = TRUE) {
+  tryCatch(code, error = function(c) {
+    return() #return null
+  })
+}
+
 simulate_rma <- function(
 
     effect_type = c("r", "r_z"),
@@ -97,27 +103,40 @@ simulate_rma <- function(
 
     # fit meta-analysis on observed values
     if(method == "HV"){
-        fit <- rma(yi = r_se_me, vi = r_var_estimate,
-                  control=list(stepadj=steplength, maxiter=maxiter))
+        fit <- try_run(rma(yi = r_se_me, vi = r_var_estimate,
+                  control=list(stepadj=steplength, maxiter=maxiter)))
 
     }else if(method == "HS"){ #https://www.metafor-project.org/doku.php/tips:hunter_schmidt_method
         r_var_estimate <- escalc(measure="COR", ri=r_se_me,
                       ni=rep(sample_size, k), vtype="AV")[["vi"]]
 
-        fit <- rma(yi = r_se_me, vi = r_var_estimate, weights = rep(sample_size, k),
-              control=list(stepadj=steplength, maxiter=maxiter))
+        fit <- try_run(rma(yi = r_se_me, vi = r_var_estimate, weights = rep(sample_size, k),
+              control=list(stepadj=steplength, maxiter=maxiter)))
 
     }
 
-
-    data.frame(intercept_b = fit$b,
-               intercept_p = fit$pval,
-               tau2_hat = fit$tau2,
-               tau2_p = fit$QEp)
+    if(is.null(fit)){ #i.e., non-convergence of Fisher scoring algorithm
+        return()
+    } else{
+        data.frame(intercept_b = fit$b,
+                   intercept_p = fit$pval,
+                   tau2_hat = fit$tau2,
+                   tau2_p = fit$QEp)
+    }
 }
 
-
-
+do_this <- function(input){
+    if(input > 0){
+        a = 3
+    }else{
+        a = NULL
+    }
+if(is.null(a)){
+    return()
+} else{
+    data.frame(1, 2)
+}
+}
 #****************************************
 # Plot prep functions
 #****************************************
