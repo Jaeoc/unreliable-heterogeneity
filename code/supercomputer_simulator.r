@@ -82,6 +82,7 @@ cond$maxiterations  <-  100 #default values are steplength = 1, and maxiter = 10
 #****************************************
 reps <- 1e1
 out_list <- vector("list", length = nrow(cond))
+last_save <- 0 #last condition row that was saved, see end of simulation below
 
 ncores <-parallel::detectCores()
 cl <- parabar::start_backend(ncores) # Create cluster based on nworkers.
@@ -129,18 +130,23 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
     out_list[[r]] <- out_list[[r]][, lapply(.SD, mean)] #data.table colMeans but returns a dataframe (well, data.table)
     out_list[[r]] <- cbind(out_list[[r]], cond[r,], non_converged)
 
-    # if(r %% 1000 == 0 | r == nrow(cond)){
-    #      #if even thousand or simulation finished
-    #      #turn results into dataframe and save as csv
+    if(r %% 1000 == 0 | r == nrow(cond)){
+         #if even thousand or simulation finished
+         #turn results into dataframe and save as csv
 
-    #     e <- rbindlist(out_list[r-999:r])
+        save_range <- last_save + 1:r
 
-    #     file_name <- paste0("../data/", effect_type, "_",
-    #                         meta_method, "_means_cond_", r-999,"-", r, ".csv")
+        e <- rbindlist(out_list[save_range])
 
-    #     fwrite(x = e, file = file_name)
-    #     rm(e)
-    # }
+        file_name <- paste0("../data/", effect_type, "_",
+                            meta_method, "_means_cond_",
+                            save_range[1],"-", save_range[r],
+                            ".csv")
+
+        fwrite(x = e, file = file_name)
+        rm(e)
+        last_save <- r
+    }
 
 
 }
