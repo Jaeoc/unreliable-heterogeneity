@@ -95,7 +95,7 @@ parabar::export(cl, c("simulate_rma", "rnorm_truncated", "try_run"))
 #****************************************
 
 start <- Sys.time()
-for(r in 1:nrow(cond)){ #gives us a list of lists
+for(r in last_save+1:nrow(cond)){ #gives us a list of lists
 
     progress_bar_format <- paste0( #for parabar
         "Condition ", r, "/", nrow(cond), ". [:bar] :percent [:elapsed]"
