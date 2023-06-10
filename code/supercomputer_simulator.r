@@ -20,67 +20,74 @@ source("code/functions.r") #for rnorm_truncated and simulate_rma
 # Conditions
 #****************************************
 sample_size <- c(50, 100, 150, 200)
-k <- c(5, 20, 40)
-mu <- seq(from = 0, to = 0.6, by = 0.1)
-
-#Based on Flake et al., average alpha was .79, SD = .13, range .17 - .87
-#Based on Sanchez-Meca, mean across 5 meta-analysis was 0.767 - 0.891 and SD ranged between 0.034 - 0.133
+k <- c(5, 20, 40, 200)
 reliability_mean <- c(0.6, 0.7, 0.8, 0.9, 1)
 reliability_sd <- seq(from = 0, to = 0.15, by = 0.05)
 
-effect_type  <- "r" # or r_z
-meta_method  <- "HV" #or HS
+mu <- seq(from = 0, to = 0.6, by = 0.2)
 
 #Using Pearson's r as the effect size.
+effect_type  <- "r" #
+meta_method  <- c("HV", "HS") #Hedges & Vevea and Hunter & Schmidt
+
 true_tau <- c(0, 0.1, 0.15, 0.2)
 true_tau2 <- true_tau^2
 
-if(effect_type == "r_z"){
-    #Using Fisher's z as the effect size (see 'compute_tau_fisher_z.r')
-
-    true_tau_50 <- c(0.1031263, 0.1566007, 0.2123514) #For N = 50
-    true_tau_100 <- c(0.1020357, 0.1549445, 0.2101057) #For N = 100
-    true_tau_150 <- c(0.1016845, 0.1544113, 0.2093826) #For N = 150
-    true_tau_200 <- c(0.1015112, 0.1541480, 0.2090256) #For N = 200
-    true_tau <- c(0, true_tau_50, true_tau_100, true_tau_150, true_tau_200)
-    true_tau2 <- true_tau^2
-
-    mu <- atanh(mu)
-}
-
-
-cond <- expand.grid(sample_size = sample_size,
+r_cond <- expand.grid(sample_size = sample_size,
                     k = k,
                     true_tau2 = true_tau2,
                     mu = mu,
                     reliability_mean = reliability_mean,
-                    reliability_sd = reliability_sd)
+                    reliability_sd = reliability_sd,
+                    effect_type = effect_type,
+                    method = meta_method)
+
+# Using Fisher' z as the effect size
+effect_type  <- "r_z"
+meta_method  <- "HV"
+
+mu <- atanh(mu)
+
+#Tau for Fisher's z (see 'compute_tau_fisher_z.r')
+true_tau_50 <- c(0.1031263, 0.1566007, 0.2123514) #For N = 50
+true_tau_100 <- c(0.1020357, 0.1549445, 0.2101057) #For N = 100
+true_tau_150 <- c(0.1016845, 0.1544113, 0.2093826) #For N = 150
+true_tau_200 <- c(0.1015112, 0.1541480, 0.2090256) #For N = 200
+true_tau <- c(0, true_tau_50, true_tau_100, true_tau_150, true_tau_200)
+true_tau2 <- true_tau^2
+
+z_cond <- expand.grid(sample_size = sample_size,
+                    k = k,
+                    true_tau2 = true_tau2,
+                    mu = mu,
+                    reliability_mean = reliability_mean,
+                    reliability_sd = reliability_sd,
+                    effect_type = effect_type,
+                    method = meta_method)
+
+#drop incorrect tau-values for fisher's z
+keep_cond <- z_cond[["true_tau2"]] == 0 |
+            (z_cond[["sample_size"]] == 50 & z_cond[["true_tau2"]] %in% true_tau_50^2) |
+            (z_cond[["sample_size"]] == 100 & z_cond[["true_tau2"]] %in% true_tau_100^2) |
+            (z_cond[["sample_size"]] == 150 & z_cond[["true_tau2"]] %in% true_tau_150^2) |
+            (z_cond[["sample_size"]] == 200 & z_cond[["true_tau2"]] %in% true_tau_200^2)
+z_cond <- z_cond[keep_cond,]
+
+#combine Pearson's r and Fisher'z conditions into one
+cond <- rbind(r_cond, z_cond)
 
 #drop cases where perfect reliability and reliability_sd > 0
 remove_cond <- cond[["reliability_mean"]] == 1 & cond[["reliability_sd"]] > 0
 cond <- cond[!remove_cond,]
 
-# fisher' z
-if(effect_type == "r_z"){
-    #drop incorrect tau-values for fisher's z
-    keep_cond <- cond[["true_tau2"]] == 0 |
-                (cond[["sample_size"]] == 50 & cond[["true_tau2"]] %in% true_tau_50^2) |
-                (cond[["sample_size"]] == 100 & cond[["true_tau2"]] %in% true_tau_100^2) |
-                (cond[["sample_size"]] == 150 & cond[["true_tau2"]] %in% true_tau_150^2) |
-                (cond[["sample_size"]] == 200 & cond[["true_tau2"]] %in% true_tau_200^2)
-    cond <- cond[keep_cond,]
-}
-
-#these below are higher level control input to the function
-cond$effect_type <- effect_type
-cond$method  <- meta_method
+#Higher level control input to the function
 cond$step_length  <-  0.5 #decrease from 1 to 0.5 to improve convergence for low N
 cond$maxiterations  <-  100 #default values are steplength = 1, and maxiter = 100
 
 #****************************************
 # Setup parallel simulation
 #****************************************
-reps <- 1e1
+reps <- 1e4
 out_list <- vector("list", length = nrow(cond))
 last_save <- 0 #last condition row that was saved, see end of simulation below
 
@@ -138,8 +145,7 @@ for(r in last_save+1:nrow(cond)){ #gives us a list of lists
 
         e <- rbindlist(out_list[save_range])
 
-        file_name <- paste0("./data/", effect_type, "_",
-                            meta_method, "_means_cond_",
+        file_name <- paste0("./data/means_cond_",
                             save_range[1],"-", save_range[r],
                             ".csv")
 
