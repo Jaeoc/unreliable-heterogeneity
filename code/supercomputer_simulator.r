@@ -138,7 +138,7 @@ for(r in 1:nrow(cond)){ #gives us a list of lists
 
         e <- rbindlist(out_list[save_range])
 
-        file_name <- paste0("../data/", effect_type, "_",
+        file_name <- paste0("./data/", effect_type, "_",
                             meta_method, "_means_cond_",
                             save_range[1],"-", save_range[r],
                             ".csv")
