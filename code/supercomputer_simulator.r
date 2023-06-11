@@ -132,17 +132,18 @@ cond6 <- cond[cond$k == 20 &
 #****************************************
 cond <- rbind(cond1, cond2, cond3, cond4, cond5, cond6)
 
-save_points_subset <- cumsum(sapply(list(cond1, cond2, cond3, cond4, cond5, cond6), nrow))
+#save_points_subset <- cumsum(sapply(list(cond1, cond2, cond3, cond4, cond5, cond6), nrow))
 
 #****************************************
 # Setup parallel simulation
 #****************************************
 reps <- 1e4
 out_list <- vector("list", length = nrow(cond))
+
 last_save <- 0 #last condition row that was saved, see end of simulation below
-intermediate_save <- TRUE
-# save_points <- 1000 #save simulation results after how many conditions have run
-save_points <- save_points_subset
+intermediate_save <- FALSE
+save_points <- 1000 #save simulation results after how many conditions have run
+#save_points <- save_points_subset
 
 ncores <-parallel::detectCores()
 cl <- parabar::start_backend(ncores) # Create cluster based on nworkers.
