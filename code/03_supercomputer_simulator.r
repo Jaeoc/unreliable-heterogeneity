@@ -132,6 +132,7 @@ cond6 <- cond[cond$k == 20 &
 #****************************************
 cond <- rbind(cond1, cond2, cond3, cond4, cond5, cond6)
 
+cond <- cond[!duplicated(cond),]
 #save_points_subset <- cumsum(sapply(list(cond1, cond2, cond3, cond4, cond5, cond6), nrow))
 
 #****************************************
