@@ -105,6 +105,7 @@ cond2$true_tau2 <- rep(true_tau2, each = 4)
 # Supplement A (variance in reliabilities)
 cond3 <- cond[cond$k == 20 &
               cond$sample_size == 150 &
+              cond$reliability_mean < 1 &
               cond$method == "HV" &
               cond$effect_type == "r",]
 
@@ -120,12 +121,18 @@ cond5 <- cond[cond$k == 20 &
               cond$method == "HV" &
               cond$effect_type == "r",]
 
+# Supplement D (Perfect reliability)
+cond6 <- cond[cond$k == 20 &
+              cond$sample_size == 150 &
+              cond$reliability_mean == 1,]
+
+
 #****************************************
 # Conditions run
 #****************************************
-cond <- rbind(cond1, cond2, cond3, cond4, cond5)
+cond <- rbind(cond1, cond2, cond3, cond4, cond5, cond6)
 
-save_points_subset <- cumsum(sapply(list(cond1, cond2, cond3, cond4, cond5), nrow))
+save_points_subset <- cumsum(sapply(list(cond1, cond2, cond3, cond4, cond5, cond6), nrow))
 
 #****************************************
 # Setup parallel simulation
