@@ -163,6 +163,10 @@ theme_bw()
 # Supplement A plots
 #****************************************
 
+
+# Supplement A Figure 1 ((variance in reliabilities))
+#****************************************
+
 dat_a <- dat[dat$k == 20 &
              dat$sample_size == 150 &
              dat$reliability_mean < 1 &
@@ -201,13 +205,96 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(reliability_sd~nominal_tau, scales = "free") +
 theme_bw()
 
-ggsave("figures/supplement/supplement_A_fig1.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_A_fig1.png", width = 8.62, height = 9.93)
+
+
+# Supplement A figure 2 (variable k)
+#****************************************
+dat_b <- dat[dat$sample_size == 150 &
+             dat$reliability_sd == 0.15 &
+             dat$nominal_tau %in% c(0, 0.1, 0.15, 0.2) &
+             dat$method == "HV" &
+             dat$effect_type == "r",]
+
+dat_b$reliability_mean <- factor(dat_b$reliability_mean)
+dat_b$k <- factor(dat_b$k)
+
+# Truncated values (same as in supplement A)
+es <- seq(0, 0.6, 0.1)
+tau <- c(0, 0.1, 0.15, 0.2)
+
+tau_trunc <- lapply(tau, compute_var_truncated, mu = es)
+tau_trunc <- unlist(tau_trunc)
+trunc_b <- data.frame(mu = es,
+                    nominal_tau = rep(tau, each = length(es)),
+                    true_tau = tau_trunc)
+
+trunc_b$true_tau <- trunc_b$nominal_tau
+trunc_b$tau_hat <- trunc_b$tau
+
+
+# NB! the object true_tau_line below comes from Figure 1 main manuscript section
+
+ggplot(dat_b, aes(x = mu, y = tau_hat)) +
+geom_line(aes(linetype = reliability_mean), show.legend = TRUE) +
+scale_linetype_manual(values = 2:5) +
+geom_line(aes(x = mu, y = true_tau), data = trunc_b, linetype = 1) +
+guides(linetype = guide_legend(reverse = TRUE, title = "Mean Reliability")) +
+expand_limits(y = 0) +
+ylab(expression("Between-studies standard deviation "~tau)) +
+xlab(expression("Average effect size "~mu)) +
+facet_grid(k~nominal_tau, scales = "free") +
+theme_bw()
+
+#ggsave("figures/supplement/supplement_A_fig2.png", width = 8.62, height = 9.93)
+
+
+# Supplement A Figure 3 (variable sample size)
+#****************************************
+dat_c <- dat[dat$k == 20 &
+             dat$reliability_sd == 0.15 &
+             dat$nominal_tau %in% c(0, 0.1, 0.15, 0.2) &
+             dat$method == "HV" &
+             dat$effect_type == "r",]
+
+
+dat_c$reliability_mean <- factor(dat_c$reliability_mean)
+dat_c$N <- factor(dat_c$N)
+
+# Truncated values (same as in supplement A)
+es <- seq(0, 0.6, 0.1)
+tau <- c(0, 0.1, 0.15, 0.2)
+
+tau_trunc <- lapply(tau, compute_var_truncated, mu = es)
+tau_trunc <- unlist(tau_trunc)
+trunc_c <- data.frame(mu = es,
+                    nominal_tau = rep(tau, each = length(es)),
+                    true_tau = tau_trunc)
+
+trunc_c$true_tau <- trunc_c$nominal_tau
+trunc_c$tau_hat <- trunc_c$tau
+
+
+# NB! the object true_tau_line below comes from Figure 1 main manuscript section
+
+ggplot(dat_c, aes(x = mu, y = tau_hat)) +
+geom_line(aes(linetype = reliability_mean), show.legend = TRUE) +
+scale_linetype_manual(values = 2:5) +
+geom_line(aes(x = mu, y = true_tau), data = trunc_c, linetype = 1) +
+guides(linetype = guide_legend(reverse = TRUE, title = "Mean Reliability")) +
+expand_limits(y = 0) +
+ylab(expression("Between-studies standard deviation "~tau)) +
+xlab(expression("Average effect size "~mu)) +
+facet_grid(N~nominal_tau, scales = "free") +
+theme_bw()
+
+#ggsave("figures/supplement/supplement_A_fig3.png", width = 8.62, height = 9.93)
 
 #****************************************
-# Supplement D plots
+# Supplement B plots
 #****************************************
 
-# Figure D1. (z-r-hs, perfect reliability)
+# Figure B1. (z-r-hs, perfect reliability)
 #****************************************
 
 
@@ -260,10 +347,10 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(effect_type~nominal_tau, scales = "free", switch = "y") +
 theme_bw()
 
-#ggsave("figures/supplement/supplement_D_fig1.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_B_fig1.png", width = 8.62, height = 9.93)
 
 
-# Figure D2
+# Figure B2
 #****************************************
 library(data.table)
 library(parallel)
@@ -384,74 +471,4 @@ facet_wrap(~nominal_tau) +
 ylab(expression("Between-studies standard deviation "~tau)) +
 xlab(expression("Average effect size "~mu))
 
-ggsave("figures/supplement/supplement_D_fig2.png", width = 8.62, height = 9.93)
-
-# r-plots for supplement (variable N, variable k)
-#****************************************
-# Plots with many different N and K
-# Either for Pearson's r or for Fisher's z
-# Tau and mu are equal in both cases
-
-#1) Create all Pearson's r plots
-dat_n_150 <- dat[dat$N == 150 & dat$effect_type == "r",]
-
-#Plot with fixed and and varying k
-ggplot(dat_n_150, aes(x = mu, y = tau_hat)) +
-geom_line(aes(linetype = reliability_meaniability), show.legend = TRUE) +
-geom_line(data = trunc, linetype = 1) +
-scale_linetype_manual(values = 2:5) +
-guides(linetype = guide_legend(reverse = TRUE)) +
-expand_limits(y = 0) +
-facet_grid(k~true_tau, scales = "free") +
-theme_bw()
-
-ggsave("figures/N_150_r_0.6-0.9_tau_sd_0.15.png", width = 8.62, height = 9.93)
-
-dat_k_20 <- dat[dat$k == 20 & dat$effect_type == "r",]
-
-#Plot with fixed k and and varying N
-ggplot(dat_k_20, aes(x = mu, y = tau_hat)) +
-geom_line(aes(linetype = reliability_meaniability), show.legend = TRUE) +
-geom_line(data = trunc, linetype = 1) +
-scale_linetype_manual(values = 2:5) +
-guides(linetype = guide_legend(reverse = TRUE)) +
-expand_limits(y = 0) +
-facet_grid(N~true_tau, scales = "free") +
-theme_bw()
-
-ggsave("figures/k_20_r_0.6-0.9_tau_sd_0.15.png", width = 8.62, height = 9.93)
-
-
-#****************************************
-# z-plots for supplement (variable N, variable k)
-#****************************************
-
-dat_n_150 <- dat[dat$N == 150 & dat$effect_type == "r_z",]
-
-#Plot with fixed and and varying k
-ggplot(dat_n_150, aes(x = mu, y = tau_hat)) +
-geom_line(aes(linetype = reliability_meaniability), show.legend = TRUE) +
-geom_line(data = trunc, linetype = 1) +
-scale_linetype_manual(values = 2:5) +
-guides(linetype = guide_legend(reverse = TRUE)) +
-expand_limits(y = 0) +
-facet_grid(k~true_tau, scales = "free") +
-theme_bw()
-
-ggsave("figures/z_N_150_0.6-0.9_tau_sd_0.15.png", width = 8.62, height = 9.93)
-
-
-dat_k_20 <- dat[dat$k == 20 & dat$effect_type == "r_z",]
-
-
-#Plot with fixed k and and varying N
-ggplot(dat_k_20, aes(x = mu, y = tau_hat)) +
-geom_line(aes(linetype = reliability_meaniability), show.legend = TRUE) +
-geom_line(data = trunc, linetype = 1) +
-scale_linetype_manual(values = 2:5) +
-guides(linetype = guide_legend(reverse = TRUE)) +
-expand_limits(y = 0) +
-facet_grid(N~true_tau, scales = "free") +
-theme_bw()
-
-ggsave("figures/z_k_20_0.6-0.9_tau_sd_0.15.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_B_fig2.png", width = 8.62, height = 9.93)

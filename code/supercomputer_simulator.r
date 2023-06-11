@@ -102,26 +102,26 @@ cond2 <- cond[cond$sample_size == 150 &
               cond$effect_type == "r",]
 cond2$true_tau2 <- rep(true_tau2, each = 4)
 
-# Supplement A (variance in reliabilities)
+# Supplement A1 (variance in reliabilities)
 cond3 <- cond[cond$k == 20 &
               cond$sample_size == 150 &
               cond$reliability_mean < 1 &
               cond$method == "HV" &
               cond$effect_type == "r",]
 
-# Supplement B (variable K)
+# Supplement A2 (variable K)
 cond4 <- cond[cond$sample_size == 150 &
               cond$reliability_sd == 0.15 &
               cond$method == "HV" &
               cond$effect_type == "r",]
 
-# Supplement C (variable sample size)
+# Supplement A3 (variable sample size)
 cond5 <- cond[cond$k == 20 &
               cond$reliability_sd == 0.15 &
               cond$method == "HV" &
               cond$effect_type == "r",]
 
-# Supplement D (Perfect reliability)
+# Supplement B (Perfect reliability)
 cond6 <- cond[cond$k == 20 &
               cond$sample_size == 150 &
               cond$reliability_mean == 1,]
