@@ -6,7 +6,7 @@
 # functions and packages
 #****************************************
 
-source("./code/functions.r") # for create_condition_cols function
+source("./code/02_functions.r") # for create_condition_cols function
 
 
 #****************************************

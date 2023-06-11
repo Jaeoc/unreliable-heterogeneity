@@ -7,7 +7,7 @@
 # functions and packages
 #****************************************
 
-source("./code/functions.r") # for plot prep functions
+source("./code/02_functions.r") # for plot prep functions
 
 library(ggplot2) #for plotting
 
@@ -462,7 +462,6 @@ trunc <- data.frame(mu = es,
 
 
 # Plot D2.
-
 
 ggplot(e) +
 geom_line(aes(x = mu, y = tau_hat), linetype = 2) +

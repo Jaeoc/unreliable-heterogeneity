@@ -14,7 +14,7 @@ library(data.table) #to bind lists into dataframe efficiently
 #library(metafor) #loaded when setting up simulations
 
 
-source("code/functions.r") #for rnorm_truncated and simulate_rma
+source("code/02_functions.r") #for rnorm_truncated and simulate_rma
 
 #****************************************
 # Full conditions
