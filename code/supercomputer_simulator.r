@@ -186,7 +186,7 @@ for(r in last_save+1:nrow(cond)){ #gives us a list of lists
          #if reached a save point or simulation finished
          #turn results into dataframe and save as csv
 
-        save_range <- last_save + 1:r
+        save_range <- (last_save + 1):r
 
         e <- rbindlist(out_list[save_range])
 
