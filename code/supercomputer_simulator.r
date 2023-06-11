@@ -140,6 +140,7 @@ save_points_subset <- cumsum(sapply(list(cond1, cond2, cond3, cond4, cond5, cond
 reps <- 1e4
 out_list <- vector("list", length = nrow(cond))
 last_save <- 0 #last condition row that was saved, see end of simulation below
+intermediate_save <- TRUE
 # save_points <- 1000 #save simulation results after how many conditions have run
 save_points <- save_points_subset
 
@@ -189,23 +190,24 @@ for(r in last_save+1:nrow(cond)){ #gives us a list of lists
     out_list[[r]] <- out_list[[r]][, lapply(.SD, mean)] #data.table colMeans but returns a dataframe (well, data.table)
     out_list[[r]] <- cbind(out_list[[r]], cond[r,], non_converged)
 
-    if(r %in% save_points | r == nrow(cond)){
-         #if reached a save point or simulation finished
-         #turn results into dataframe and save as csv
+    if(intermediate_save){
+        if(r %in% save_points | r == nrow(cond)){
+            #if reached a save point or simulation finished
+            #turn results into dataframe and save as csv
 
-        save_range <- (last_save + 1):r
+            save_range <- (last_save + 1):r
 
-        e <- rbindlist(out_list[save_range])
+            e <- rbindlist(out_list[save_range])
 
-        file_name <- paste0("./data/means_cond_",
-                            save_range[1],"-", save_range[r],
-                            ".csv")
+            file_name <- paste0("./data/means_cond_",
+                                save_range[1],"-", save_range[r],
+                                ".csv")
 
-        fwrite(x = e, file = file_name)
-        rm(e)
-        last_save <- r
+            fwrite(x = e, file = file_name)
+            rm(e)
+            last_save <- r
+        }
     }
-
 
 }
 
@@ -221,4 +223,4 @@ end - start
 
 #e <- rbindlist(out_list)
 
-#saveRDS(e, "../data_new/raw_r_tau_0-0.2.RDS")
+#data.table::fwrite(x = e, file = "/data/means_combined.csv")
