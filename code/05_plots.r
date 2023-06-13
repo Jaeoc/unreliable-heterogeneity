@@ -271,9 +271,6 @@ trunc_c <- data.frame(mu = es,
                     nominal_tau = rep(tau, each = length(es)),
                     true_tau = tau_trunc)
 
-trunc_c$true_tau <- trunc_c$nominal_tau
-trunc_c$tau_hat <- trunc_c$tau
-
 
 # NB! the object true_tau_line below comes from Figure 1 main manuscript section
 
