@@ -1,67 +1,25 @@
 ---
+
 format: pdf
+
 ---
+# Supplement A: converting heterogeneity between Pearson's r and Fisher's z
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
-# Supplement A: varying reliability SD and the effect of N and k
+The table below shows the results of our procedure to convert between studies variance expressed in Pearson's $r$ to between-studies variance expressed in Fisher's $z$ through the use of $I^2$ as described in the main text.
 
-Lower standard deviation in reliability leads to a more severe underestimate for large effect sizes. Figure A1 demonstrates this effect for four levels of between-studies standard deviation (columns Figure A1) and four levels of reliability standard deviation (rows Figure A1) when sample size (N) is set to 150 within studies and the number of meta-analyzed studies (K) is 20. All results in this manuscript are based on the outcome variable Pearsons's $r$ estimated with Hedges & Vevea (1998) approach and Restricted Maximum Likelihood (REML) and averaged across 10,000 replications. As can be seen in Figure A1, once reliability standard deviation reaches 0.05 (third row) there is practically no upward inflation of heterogeneity remaining, only just sufficient to compensate for the suppression due to the truncation of Pearson's $r$ at {-1, 1}. A such, especially in the case of large effect sizes heterogeneity can be expected to be somewhat more negatively biased as reliability standard deviation decreases.
+_Table A1_.
+```{r}
 
-```{r Figure A1, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("../figures/supplement/supplement_A_fig1.png")
+source("../code/01_compute_tau_fishers_z.r") #all computations were made here
+
+#Gives us the object 'cond'
+cond_table <- cond[,c(1, 3, 2, 4, 6)]
+
+knitr::kable(cond_table, booktabs = TRUE, col.names = c("$\\rho$", "N", "$\\tau_r$", "$I^2$", "$\\tau_z$"), escape = FALSE)
 ```
 
-_Figure A1._ Inflation of effect sizes decreases with lower reliability SD leading to larger net negative bias in heterogeneity, especially for large effect sizes and moderate heterogeneity. The x-axis indicates average effect size and the y-axis estimated heterogeneity in standard deviations. Columns indicate nominal true between-studies standard deviation and rows indicate reliability standard deviation. Due to truncation in Pearson's $r$ or translation to Fisher's $z$ these values may differ from actual true heterogeneity standard deviation (black solid lines). Each dashed line correspond to an average reliability in primary studies.
-
-
-Lower number of meta-analyzed studies leads to a larger inflation of heterogeneity at low levels of true heterogeneity (Figure A2). In Figure A2, columns are again nominal true heterogeneity, whereas rows in Figure A2 are the number of studies in each meta-analysis. Generally, we would expect a lower number of studies to lead to larger sampling variance of heterogeneity estimates, hence a larger proportion of estimates truncated at zero, and consequently more inflated average heterogeneity estimates when number of studies is low (e.g., first row Figure A2) and heterogeneity is small or absent (first column Figure A2). This is also what we see in Figure A2. In addition, the number of studies mostly affects heterogeneity estimates when average effect size is small.
-
-```{r Figure A2, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("../figures/supplement/supplement_A_fig2.png")
-```
-
-_Figure A2._ Expected inflation of effect sizes decreases with larger number of meta-analyzed when heterogeneity is absent or small and average effect size is small. The x-axis indicates average effect size and the y-axis estimated heterogeneity in standard deviations. Columns indicate nominal true between-studies standard deviation and rows indicate number of meta-analyzed studies. Due to truncation in Pearson's $r$ or translation to Fisher's $z$ these values may differ from actual true heterogeneity standard deviation (black solid lines). Each dashed line correspond to an average reliability in primary studies.
-
-```{r, include = FALSE}
-
-dat <- read.csv("data/means_combined.csv")
-dat$tau_hat <- sqrt(dat$tau2_hat)
-dat$nominal_tau <- sqrt(dat$true_tau2)
-dat$k <- factor(dat$k, levels = c("5", "20", "40", "200"))
-dat$N <- factor(dat$sample_size, levels = c("50", "100", "150", "200"))
-
-# differences are largest when mu = 0 and reliability is low
-dat_a3 <- dat_c[dat_c$sample_size %in% c(50, 200) &
-                dat_c$reliability_mean == 0.6 &
-                dat_c$mu == 0,]
-
-res1 <- split(dat_a3, dat_a3$nominal_tau)
-res1 <- lapply(res1, function(x) {
-    x[1, "tau_hat"] - x[2, "tau_hat"]
-})
-res1 <- abs(unlist(res1))
-
-#For standard reliability sample size can matter more
-dat_a3 <- dat_c[dat_c$sample_size %in% c(50, 200) &
-                dat_c$reliability_mean == 0.8 &
-                dat_c$mu == 0,]
-
-res2 <- split(dat_a3, dat_a3$nominal_tau)
-res2 <- lapply(res2, function(x) {
-    x[1, "tau_hat"] - x[2, "tau_hat"]
-})
-res2 <- abs(unlist(res2))
-
-```
-
-A smaller sample size in primary studies tends exacerbate the bias in observed heterogeneity estimates due to unreliability (Figure A3). In Figure A3, columns are again nominal true heterogeneity, whereas rows in Figure A3 are the (fixed) sample size within primary studies. Figure A3 shows that when true heterogeneity is zero (leftmost column) a smaller sample size tends to lead to a more positive bias in estimated heterogenetiy, although in the exceptional case when average effect size is also large ($\mu > 0.5$), large reliability variability increases heterogeneity less than when sample size is larger. When true heterogeneity is non-zero, smaller sample size corresponds with a larger negative bias in heterogenetiy estimates. For higher levels of reliability differences are small, but can be more serious when average reliability is low. For example, for $\bar{R} = 0.8$, the difference in estimate is at most $\hat{\tau} = 0.01$ for true heterogeneity above 0.1 when comparing a sample size of 50 versus 200 (column second from right, topmost row versus bottom row), whereas when $\bar{R} = 0.6$, the difference can be as much as $\hat{\tau} = 0.03$ (column second from right, topmost row versus bottom row).
-
-
-```{r Figure A3, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("../figures/supplement/supplement_A_fig3.png")
-```
-
-_Figure A3._ A smaller sample size in primary studies tends exacerbate the bias in observed heterogeneity estimates due to unreliability. The x-axis indicates average effect size and the y-axis estimated heterogeneity in standard deviations. Columns indicate nominal true between-studies standard deviation and rows indicate number of meta-analyzed studies. Due to truncation in Pearson's $r$ or translation to Fisher's $z$ these values may differ from actual true heterogeneity standard deviation (black solid lines). Each dashed line correspond to an average reliability in primary studies.
+_Note._ $\rho$ = average effect size, N = (fixed) within-study sample size, $\tau_r$ = between-studies standard deviation in Pearson's $r$, $\tau_z$ between-studies standard deviation in Fisher's $z$. The $I^2$ statistic is here expressed as a proportion.
