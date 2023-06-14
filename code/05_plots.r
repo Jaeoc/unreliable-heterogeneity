@@ -160,7 +160,7 @@ theme_bw()
 #ggsave("figures/manuscript/r_tau_0.02-0.08.png", width = 8.62, height = 9.93)
 
 #****************************************
-# supplement C plots
+# supplement C plots (supplemental main results)
 #****************************************
 
 
@@ -288,10 +288,10 @@ theme_bw()
 #ggsave("figures/supplement/supplement_C_fig3.png", width = 8.62, height = 9.93)
 
 #****************************************
-# Supplement B plots
+# Supplement A plots
 #****************************************
 
-# Figure B1. (z-r-hs, perfect reliability)
+# Figure A1. (z-r-hs, perfect reliability)
 #****************************************
 
 
@@ -344,10 +344,10 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(effect_type~nominal_tau, scales = "free", switch = "y") +
 theme_bw()
 
-#ggsave("figures/supplement/supplement_B_fig1.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_A_fig1.png", width = 8.62, height = 9.93)
 
 
-# Figure B2
+# Figure A2
 #****************************************
 library(data.table)
 library(parallel)
@@ -467,4 +467,4 @@ facet_wrap(~nominal_tau) +
 ylab(expression("Between-studies standard deviation "~tau)) +
 xlab(expression("Average effect size "~mu))
 
-#ggsave("figures/supplement/supplement_B_fig2.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_A_fig2.png", width = 8.62, height = 9.93)
