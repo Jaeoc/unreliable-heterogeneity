@@ -159,10 +159,46 @@ theme_bw()
 
 #ggsave("figures/manuscript/r_tau_0.02-0.08.png", width = 8.62, height = 9.93)
 
+# Figure 3 (variable sample size)
+#****************************************
+dat_N <- dat[dat$k == 20 &
+             dat$reliability_sd == 0.15 &
+             dat$nominal_tau %in% c(0, 0.1, 0.15, 0.2) &
+             dat$method == "HV" &
+             dat$effect_type == "r",]
+
+
+dat_N$reliability_mean <- factor(dat_N$reliability_mean)
+dat_N$N <- factor(dat_N$N)
+
+# Truncated values (same as in Figure 2)
+es <- seq(0, 0.6, 0.1)
+tau <- c(0, 0.1, 0.15, 0.2)
+
+tau_trunc <- lapply(tau, compute_var_truncated, mu = es)
+tau_trunc <- unlist(tau_trunc)
+trunc_N <- data.frame(mu = es,
+                    nominal_tau = rep(tau, each = length(es)),
+                    true_tau = tau_trunc)
+
+
+
+ggplot(dat_N, aes(x = mu, y = tau_hat)) +
+geom_line(aes(linetype = reliability_mean), show.legend = TRUE) +
+scale_linetype_manual(values = 2:5) +
+geom_line(aes(x = mu, y = true_tau), data = trunc_N, linetype = 1) +
+guides(linetype = guide_legend(reverse = TRUE, title = "Mean Reliability")) +
+expand_limits(y = 0) +
+ylab(expression("Between-studies standard deviation "~tau)) +
+xlab(expression("Average effect size "~mu)) +
+facet_grid(N~nominal_tau, scales = "free") +
+theme_bw()
+
+#ggsave("figures/manuscript/sample_size.png", width = 8.62, height = 9.93)
+
 #****************************************
 # supplement C plots (supplemental main results)
 #****************************************
-
 
 # supplement C Figure 1 (variance in reliabilities)
 #****************************************
@@ -248,44 +284,6 @@ theme_bw()
 
 #ggsave("figures/supplement/supplement_C_fig2.png", width = 8.62, height = 9.93)
 
-
-# supplement C Figure 3 (variable sample size)
-#****************************************
-dat_c <- dat[dat$k == 20 &
-             dat$reliability_sd == 0.15 &
-             dat$nominal_tau %in% c(0, 0.1, 0.15, 0.2) &
-             dat$method == "HV" &
-             dat$effect_type == "r",]
-
-
-dat_c$reliability_mean <- factor(dat_c$reliability_mean)
-dat_c$N <- factor(dat_c$N)
-
-# Truncated values (same as in supplement C)
-es <- seq(0, 0.6, 0.1)
-tau <- c(0, 0.1, 0.15, 0.2)
-
-tau_trunc <- lapply(tau, compute_var_truncated, mu = es)
-tau_trunc <- unlist(tau_trunc)
-trunc_c <- data.frame(mu = es,
-                    nominal_tau = rep(tau, each = length(es)),
-                    true_tau = tau_trunc)
-
-
-# NB! the object true_tau_line below comes from Figure 1 main manuscript section
-
-ggplot(dat_c, aes(x = mu, y = tau_hat)) +
-geom_line(aes(linetype = reliability_mean), show.legend = TRUE) +
-scale_linetype_manual(values = 2:5) +
-geom_line(aes(x = mu, y = true_tau), data = trunc_c, linetype = 1) +
-guides(linetype = guide_legend(reverse = TRUE, title = "Mean Reliability")) +
-expand_limits(y = 0) +
-ylab(expression("Between-studies standard deviation "~tau)) +
-xlab(expression("Average effect size "~mu)) +
-facet_grid(N~nominal_tau, scales = "free") +
-theme_bw()
-
-#ggsave("figures/supplement/supplement_C_fig3.png", width = 8.62, height = 9.93)
 
 #****************************************
 # Supplement A plots
@@ -458,7 +456,7 @@ trunc <- data.frame(mu = es,
                     true_tau = tau_trunc)
 
 
-# Plot D2.
+# Plot A2.
 
 ggplot(e) +
 geom_line(aes(x = mu, y = tau_hat), linetype = 2) +
