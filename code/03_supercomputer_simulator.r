@@ -100,31 +100,32 @@ cond2 <- cond[cond$sample_size == 150 &
               cond$reliability_sd ==0.15 &
               cond$method == "HV" &
               cond$effect_type == "r",]
+
 cond2$true_tau2 <- rep(true_tau2, each = 4)
 
-# Supplement A1 (variance in reliabilities)
+#3) Figure 3 main manuscript (variable sample size)
 cond3 <- cond[cond$k == 20 &
-              cond$sample_size == 150 &
-              cond$reliability_mean < 1 &
-              cond$method == "HV" &
-              cond$effect_type == "r",]
-
-# Supplement A2 (variable K)
-cond4 <- cond[cond$sample_size == 150 &
-              cond$reliability_sd == 0.15 &
-              cond$method == "HV" &
-              cond$effect_type == "r",]
-
-# Supplement A3 (variable sample size)
-cond5 <- cond[cond$k == 20 &
               cond$reliability_sd == 0.15 &
               cond$method == "HV" &
               cond$effect_type == "r",]
 
 # Supplement B (Perfect reliability)
-cond6 <- cond[cond$k == 20 &
+cond4 <- cond[cond$k == 20 &
               cond$sample_size == 150 &
               cond$reliability_mean == 1,]
+
+# Supplement C1 (variance in reliabilities)
+cond5 <- cond[cond$k == 20 &
+              cond$sample_size == 150 &
+              cond$reliability_mean < 1 &
+              cond$method == "HV" &
+              cond$effect_type == "r",]
+
+# Supplement C2 (variable K)
+cond6 <- cond[cond$sample_size == 150 &
+              cond$reliability_sd == 0.15 &
+              cond$method == "HV" &
+              cond$effect_type == "r",]
 
 
 #****************************************
