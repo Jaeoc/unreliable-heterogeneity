@@ -89,6 +89,79 @@ underestimate_mu02 <- list(underestimate_min = underestimate_min,
                            underestimate_max = underestimate_max)
 
 
+## [1.4] sample size (N = 50 vs N = 200, mu = 0.2, tau >0)
+#****************************************
+
+dat <- read.csv("data/means_combined.csv")
+dat$tau_hat <- sqrt(dat$tau2_hat)
+dat$nominal_tau <- sqrt(dat$true_tau2)
+dat$k <- factor(dat$k, levels = c("5", "20", "40", "200"))
+dat$N <- factor(dat$sample_size, levels = c("50", "100", "150", "200"))
+
+dat_3 <- dat[dat$k == 20 &
+             dat$reliability_sd == 0.15 &
+             dat$nominal_tau %in% c(0.1, 0.15, 0.2) &
+             dat$sample_size %in% c(50, 200) &
+             dat$method == "HV" &
+             dat$effect_type == "r",]
+
+### [1.4.1] differences when  reliability is 0.8
+#****************************************
+
+dat_3b <- dat_3[dat_3$reliability_mean == 0.8 &
+              dat_3$mu == 0.2,]
+
+res2 <- split(dat_3b, dat_3b$nominal_tau)
+res2 <- lapply(res2, function(x) {
+    x[1, "tau_hat"] - x[2, "tau_hat"]
+})
+res2 <- abs(unlist(res2))
+
+max_bias_n50_0.8 <- round(max(res2), 2)
+
+### [1.4.2] difference reliability is 0.6
+#****************************************
+
+dat_3a <- dat_3[dat_3$reliability_mean == 0.6 &
+                dat_3$mu == 0.2,]
+
+res1 <- split(dat_3a, dat_3a$nominal_tau)
+res1 <- lapply(res1, function(x) {
+    x[1, "tau_hat"] - x[2, "tau_hat"]
+})
+res1 <- abs(unlist(res1))
+
+max_bias_n50_0.6 <- round(max(res1), 2)
+
+### [1.4.2] bias when mu = 0.2, tau = 0.15, N = 50, R =  0.6
+#****************************************
+dat_142 <- dat_3a[dat_3a$nominal_tau == 0.15 &
+                  dat_3a$N == 50,]
+
+net_bias_n50 <-  dat_142$tau_hat - dat_142$nominal_tau
+net_bias_n50  <- round(net_bias_n50, 3)
+
+###*[1.4.4] bias when mu = 0.2 and tau => 0.1 ----
+#****************************************
+dat50 <- dat_3[dat_3$mu == 0.2 &
+               dat_3$nominal_tau >= 0.1 &
+               dat_3$N == 50,]
+
+dat50$prop <- dat50$tau_hat / dat50$nominal_tau
+
+dat50$underestimate <- 1 - dat50$prop
+
+#"heterogeneity can be expected to be underestimated by XX%"
+underestimate_min50 <- data.frame(dat50[which.min(dat50$underestimate),
+ c("nominal_tau", "reliability_mean", "underestimate")])
+
+underestimate_max50 <- data.frame(dat50[which.max(dat50$underestimate),
+ c("nominal_tau", "reliability_mean", "underestimate")])
+
+underestimate_50 <- list(underestimate_min = underestimate_min50,
+                           underestimate_max = underestimate_max50)
+
+
 #****************************************
 # [2] Discussion
 #****************************************
@@ -121,13 +194,20 @@ quick_sim(k = k, sample_size = sample_size, mu = mu, true_tau2 = true_tau2)
 set.seed(1532)
 res <- replicate(1e4, quick_sim(k = k, sample_size = sample_size, mu = mu, true_tau2 = true_tau2))
 median(res)
+
+
+
 #****************************************
-# [2] Output
+# [3] Output
 #****************************************
 
 saveRDS(list(
     bias_tau_zero = bias_tau_zero,
     bias_increasing_tau = bias_increasing_tau,
-    underestimate_mu02 = underestimate_mu02),
+    underestimate_mu02 = underestimate_mu02,
+    bias_n50_0.8 = max_bias_n50_0.8,
+    bias_n50_0.6 = max_bias_n50_0.6,
+    net_bias_n50 = net_bias_n50,
+    underestimate_50 = underestimate_50),
     file = "./manuscript/in-text-values.RDS"
 )
