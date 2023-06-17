@@ -127,7 +127,7 @@ Figure 1 provides an overview of the design of this simulation study. Our design
 ```{r Figure 1, out.width= "85%"}
 #| fig.env: figure*
 #| fig-pos: 't'
-#| fig-cap: "Figure 1. Flowchart summarizing the simulation design. The flowchart shows the procedures followed to meta-anlyze results using the Hedge’s and Vevea model (see ‘Meta-Analytic Model’ header in methods section). The Hunter & Schmidt ‘bare-bones’ meta-analytic model followed the Pearson correlations procedure, but used sample size weights and replaced $r_i$ in the sampling variance by $\\bar{r}$ for meta-anlysis."
+#| fig-cap: "Figure 1. Flowchart summarizing the simulation design."
 
 
 knitr::include_graphics("../figures/manuscript/flowchart-simulation-design.pdf")
