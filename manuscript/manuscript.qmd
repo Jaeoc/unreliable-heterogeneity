@@ -1,39 +1,41 @@
 ---
 title: "Unreliable heterogeneity: how measurement error obscures heterogeneity in meta-analyses in psychology"
-preprint: true
+date: today
+date-format: long
 author:
-  - name: "Anton Olsson-Collentine"
-    affiliation: 1
-    corresponding: true
+  - name: Anton Olsson-Collentine
+    url: https://example.com
+    orcid: 0000-0000-0000-0000
+    affiliations:
+      - id: tiu
+        name: "Department of Methodology and Statistics, Tilburg School of Social and Behavioral Sciences, Tilburg University, the Netherlands."
     email: anton@olssoncollentine.com
-
-
-  - name          : "Marjan Bakker"
-    affiliation   : "1"
-
-  - name          : "Jelte Wicherts"
-    affiliation   : "1"
-affiliation:
-  - code: 1
-    address: "Department of Methodology and Statistics, Tilburg School of Social and Behavioral Sciences, Tilburg University, the Netherlands."
-
-abstract: >
+  - name: Marjan Bakker
+    affiliations:
+      - ref: tiu
+  - name: Jelte Wicherts
+    affiliations:
+      - ref: tiu
+format:
+  bj-pdf:
+    classoption:
+      - twocolumn
+colorlinks: true
+link-citations: true
+keep-tex: false
+abstract: |
   One of the main purposes of meta-analysis is to estimate heterogeneity of effect sizes. The quality of meta-analytic estimates depends in large part on the quality of evidence in primary studies, yet there exist broad concerns that proper measurement tends to be neglected in much of psychological primary research. Such inattention to measurement can also bias heterogeneity estimates. We performed a Monte-Carlo simulation study to examine the expected bias in heterogeneity estimates due to unreliability in primary studies. Although unreliability in primary studies can both inflate and suppress heterogeneity, our results indicate that under most circumstances unreliability in primary studies leads to a severe underestimate of heterogeneity in meta-analyses. For a typical effect size heterogeneity can be expected to be underestimated by 15-60%, or more if average reliability in primary studies is below 0.6. We observed a positive bias in heterogeneity estimates due to unreliability only under specific and arguably uncommon circumstances of (1) actual zero heterogeneity, particularly when mean effect sizes are large, or (2) combinations of very small true heterogeneity, large variance in primary study reliabilities, large mean effect sizes, and a limited number of primary studies. The severity of the underestimation of heterogeneity could lead to meta-analyses in psychology missing relevant moderators and overgeneralizing outcomes. Unreliability appears to bring truly different effects closer together, thereby obscuring true differences between studies that could be relevant for theory, practice, and future research efforts. Research on concrete guidance to applied meta-analysts is urgently needed, as sophisticated methods for correcting measurement unreliability such as meta-analytic structural equation modeling (MASEM) are only applicable in exceptional cases and corrections based on classical test theory come with caveats and strong assumptions.
-
-header-includes:
-   - \usepackage{setspace}
-   - \usepackage{lineno}
-   - \linenumbers
-
+license: CC BY
+keywords:
+  - Research
+  - Cool Stuff
+citation:
+  type: article
+  citation-key: citationKeyNumber
+  status: draft
+cite-method: citeproc
 csl: apa.csl
-
-
-output:
-  bookdown::pdf_book:
-    base_format: rticles::peerj_article # for using bookdown features like \@ref()
-    keep_tex: true
-  rticles::peerj_article: default
-
+bibliography: references.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -68,11 +70,9 @@ Heterogeneity is inflated in heterogeneity estimates of uncorrected effect sizes
 
  Any observed effect size $\hat{\mu}$ can then be seen as the true effect size $\mu$ multiplied by a study’s reliability $R_i$ (assuming $R_i = R_{xx’} = R_{yy’}$). Hence, the distribution of observed effect sizes is the true effect size $\mu$ multiplied by the distribution of reliabilities across studies. That is, $\hat{\mu} \sim \mu \times N(\bar{R}, \sigma_R) = N(\mu \bar{R}, \mu \sigma_R)$, where $\bar{R}$ is the average reliability across studies and $\sigma_R$ its standard deviation. Because reliability lies between 0 – 1, under these conditions imperfect reliability implies that the observed average effect size will be less than the true effect size by a factor $\bar{R}$ and estimated heterogeneity will be larger than true heterogeneity (i.e., zero) by the product of $\mu \times \sigma_R$ (if heterogeneity is expressed as standard deviation rather than variance). That is, variability in reliability across studies is a force that inflates heterogeneity depending on the size of the true effect size. Table 1 illustrates this effect for three studies with differing reliability and zero true heterogeneity.
 
-Table 1.
-
-*Variance in reliability inflates heterogeneity in combination with increased average effect size and leads to overestimated heterogeneity in a fixed effects model*
-
 ```{r positive bias table}
+
+#| tbl-pos: t
 
 if (doc_type == "docx") {
   print("Table 1 approximately here. Cannot be printed nicely to Word, see tables.pdf")
@@ -84,9 +84,6 @@ if (doc_type == "docx") {
 
 Heterogeneity is suppressed in heterogeneity estimates of uncorrected effect sizes because in absolute terms larger effect sizes are more attenuated by a given reliability. That is, although the attenuation formula $r_{xy} = \rho_{xy} \times \sqrt{R_{xx'}} \times \sqrt{R_{yy'}}$ implies that any effect size $\rho_{xy}$ will be attenuated by the same proportion given the same reliabilities $\sqrt{R_{xx'}} \times \sqrt{R_{yy'}}$, this proportion corresponds to a larger absolute value for larger effect sizes. Consequently, in the presence of heterogeneity attenuation will move larger true effect sizes further towards zero than smaller ones, decreasing heterogeneity in observed effect sizes. This suppression can be observed directly by assuming an average effect size $\theta$ with some heterogeneity $\tau^2$, infinite sample size within studies (i.e., no within-study sampling variance), and equal reliability across studies ($R = R_i = R_{xx'} = R_{yy'}$). Any observed effect size $\hat{\theta_i}$ can then be seen as a study’s true effect size $\theta_i$ multiplied by the study reliability $R$. Hence, the distribution of observed effect sizes is the distribution of true effect sizes $N(\theta, \tau^2)$ multiplied by the reliability $R$, such that $R \times N(\theta, \tau^2) = N(R \theta, R^2 \tau^2) = N(R \theta, R \tau)$. Because reliability lies between 0 – 1, under these conditions imperfect reliability implies that both the observed average effect size and the estimated heterogeneity will be less than their true value by a factor $\bar{R}$ (if heterogeneity is expressed as standard deviation rather than variance). This depiction is not entirely correct for Pearson's $r$ as it is bounded at {-1, 1}, but holds approximately if the mean effect size $\theta$ and heterogeneity $\tau^2$ are not too large. Hence, imperfect reliability in studies can be expected to suppress heterogeneity estimates whenever true heterogeneity is present. Consider an average reliability of 0.8 (the median reported reliability in psychology; Flake et al., 2017). Then, $0.8 \times N(\theta, \tau) = N(0.8\theta, 0.8 \tau)$, resulting in 20% less standard deviation among observed effect sizes than in true effect sizes. Table 2 illustrates this relationship for infinite sample size (i.e., no sampling variance) and three levels of reliability across three studies.
 
-Table 2.
-
-*Imperfect reliability suppresses true heterogeneity*
 
 ```{r negative bias table}
 
@@ -119,6 +116,15 @@ The disadvantage to using Pearson’s r when estimating heterogeneity are that (
 
 We apply two meta-analytic models to ensure that our results are not model-dependent: the Hedges and Vevea (1998) random-effects model and the Hunter and Schmidt (2015) ‘bare-bones’ random-effects model. The Hedges and Vevea (HV) model uses inverse variance weight computed as $w_i = 1 / (V_i + T^2)$ (e.g., Borenstein et al., 2010) where $V_i$ is the sampling variance of study $i$ and $T^2$ is the estimated between-studies variance. The Hunter and Schmidt (HS) model weighs studies by sample size $w_i = N_i$. The differences between these weights are relatively minor (Borenstein et al., 2010; Hunter and Schmidt, 2015, p. 423-426). Although the HV model is typically applied to Fisher z transformed correlations (e.g., Borenstein et al., p. 41-43), we apply it to both transformed and untransformed correlations to enable a more direct comparison with the HS model and facilitate interpretation. The HS model typically includes corrections for unreliability or other measurement artifacts. However, we implement it without corrections (‘bare-bones’; Hunter & Schmidt, 2015) because this allows us to focus on the bias in heterogeneity estimates rather than the performance of corrections (e.g., see Zhang, 2022 for how well they perform in terms of mean estimates).
 
+```{r Figure 1, out.width= "85%"}
+#| fig.env: figure*
+#| fig-pos: 't'
+#| fig-cap: "Figure 1. Flowchart summarizing the simulation design. The flowchart shows the procedures followed to meta-anlyze results using the Hedge’s and Vevea model (see ‘Meta-Analytic Model’ header in methods section). The Hunter & Schmidt ‘bare-bones’ meta-analytic model followed the Pearson correlations procedure, but used sample size weights and replaced $r_i$ in the sampling variance by r for meta-anlysis."
+
+
+knitr::include_graphics("../figures/manuscript/flowchart-simulation-design.png")
+```
+
 Estimating heterogeneity in both the HV and bare-bones HS model essentially consists of comparing the observed variance in effect sizes with what would be expected from sampling error alone and then ascribing any excess observed variance to heterogeneity (Borenstein et al., 2010, Box 1; Hunter & Schmidt, 2015, p. 100). However, the process for doing so differs somewhat between methods. We apply the Restricted Maximum Likelihood (REML) estimator of heterogeneity when estimating heterogeneity in the Hedges and Vevea (1998) model, because it is the generally recommended heterogeneity estimator (Veroniki et al., 2016; Viechtbauer, 2005). Veroniki et al. (2016) describe the REML estimator in detail. The Hunter and Schmidt (2015) model estimates heterogeneity as $\tau^2 = \sigma^2_r - \sigma^2_e$ where  $\sigma^2_r$ is the observed variance across correlations and $\sigma^2_e$ is the average sampling error variance across studies, computed as $\frac{\Sigma [N_i \sigma^2_{ei}]}{\Sigma N_i}$ (Hunter & Schmidt, 2015, p. 100) and $\sigma^2_{ei}$ is the usual sampling variance for the Pearson correlation but with $\rho$ replaced with the sample size weighted average correlation $\bar{r} = \frac{\Sigma n_i r_i}{\Sigma n_i}$ instead of $r_i$ as is common. A generalized version of the HS estimator for effect sizes other than correlations can be found in Viechtbauer (2005; 2015).
 
 
@@ -126,11 +132,7 @@ Estimating heterogeneity in both the HV and bare-bones HS model essentially cons
 
 Figure 1 provides an overview of the design of this simulation study. Our design was broadly the same for product-moment correlations and Fisher's $z$, with some minor differences we highlight in the text below detailing the procedure.
 
-```{r Figure 1, out.width= "100%"}
-knitr::include_graphics("../figures/manuscript/flowchart-simulation-design.png")
-```
 
-_Figure 1. Flowchart summarizing the simulation design. The flowchart shows the procedures followed to meta-anlyze results using the Hedge’s and Vevea model (see ‘Meta-Analytic Model’ header in methods section). The Hunter & Schmidt ‘bare-bones’ meta-analytic model followed the Pearson correlations procedure, but used sample size weights and replaced_ $r_i$ _in the sampling variance by $\bar{r}$ for meta-anlysis._
 
 We generated data for the meta-analyses as follows. First,  we sampled $i = 1, ..., k$ true study effect sizes $\theta_i$ from $Ntrunc(\theta, \tau^2)$. That is, a normal distribution with a mean of $\theta$ and a variance of $\tau^2$ that we truncated at $\{-1, 1\}$ to stay within the bounds of the product-moment correlation. We implemented the effect size truncation in R using inverse transform sampling (link: functions.r). For Fisher’ z no truncation was applied. Throughout this text we will refer to three types of truncation: (1) effect size truncation (truncation of Pearson’s correlations between {-1, 1}), (2), reliability truncation (truncation of reliability between {0, 1}), and (3) heterogeneity truncation (truncation of heterogeneity estimates to be non-negative).
 
