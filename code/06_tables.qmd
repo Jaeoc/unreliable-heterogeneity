@@ -2,7 +2,6 @@
 format: pdf
 ---
 
-# Project: Unreliable heterogeneity
 
 ```{r setup, include=FALSE}
 # Script purpose: create tables for manuscript
@@ -14,8 +13,6 @@ library(kableExtra) #For creating good-looking pdf tables
 ```
 
 
-## Table 1
-### Variance in reliability leads to positive bias in heterogeneity estimates
 
 ```{r effect-size-heterogeneity-table}
 #library(kableExtra)
@@ -37,7 +34,9 @@ positive_bias_table <- table1 %>%
                         "$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = .7",
                         "$\\sqrt{R_{xx'}}\\times\\sqrt{R_{yy'}}$ = .8",
                         "SD(ES)"),
-                        table.env = 'table*') %>%
+                        table.env = 'table*',
+                        label = "effect-size-heterogeneity",
+                        caption = "Variance in reliability inflates true heterogeneity") %>%
   kable_styling(position = "left") %>%
   add_header_above(c(" " = 2, "Study 1"= 1, "Study 2" = 1, "Study 3" = 1, " " = 1 )) %>%
   add_header_above(c(" " = 2, "Observed Effect Sizes" = 3, " " = 1)) %>%
@@ -47,9 +46,6 @@ positive_bias_table <- table1 %>%
 positive_bias_table
 ```
 
-
-## Table 2
-### Imperfect reliability leads to negative bias in heterogeneity estimates
 
 ```{r negative-bias-heterogeneity}
 library(kableExtra)
@@ -70,7 +66,8 @@ negative_bias_table <- dat %>%
                "Study 2",
                "Study 3",
                "SD(ES)"),
-               table.env = 'table*') %>%
+               label = "suppress-heterogeneity",
+               caption = "Imperfect reliability suppresses true heterogeneity") %>%
  kable_styling(position = "left") %>%
  add_header_above(c(" " = 1, "Observed Effect Sizes" = 3, " " = 1)) %>%
  footnote(general = "The values under Study 1, 2 and 3 are observed effect sizes for that study given the measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size of that study (first row) when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes, equivalent to heterogeneity given infinite within-study sample sizes. Code to reproduce table: LINK",
@@ -85,5 +82,5 @@ negative_bias_table
 
 saveRDS(list(positive_bias_table = positive_bias_table,
              negative_bias_table = negative_bias_table),
-        "./manuscript/tables.RDS")
+        "../manuscript/tables.RDS")
 ```
