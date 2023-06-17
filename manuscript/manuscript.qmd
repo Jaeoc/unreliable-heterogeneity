@@ -130,7 +130,7 @@ Figure 1 provides an overview of the design of this simulation study. Our design
 #| fig-cap: "Figure 1. Flowchart summarizing the simulation design. The flowchart shows the procedures followed to meta-anlyze results using the Hedge’s and Vevea model (see ‘Meta-Analytic Model’ header in methods section). The Hunter & Schmidt ‘bare-bones’ meta-analytic model followed the Pearson correlations procedure, but used sample size weights and replaced $r_i$ in the sampling variance by $\\bar{r}$ for meta-anlysis."
 
 
-knitr::include_graphics("../figures/manuscript/flowchart-simulation-design.png")
+knitr::include_graphics("../figures/manuscript/flowchart-simulation-design.pdf")
 ```
 
 We generated data for the meta-analyses as follows. First,  we sampled $i = 1, ..., k$ true study effect sizes $\theta_i$ from $Ntrunc(\theta, \tau^2)$. That is, a normal distribution with a mean of $\theta$ and a variance of $\tau^2$ that we truncated at $\{-1, 1\}$ to stay within the bounds of the product-moment correlation. We implemented the effect size truncation in R using inverse transform sampling (link: functions.r). For Fisher’s $z$ no truncation was applied. Throughout this text we will refer to three types of truncation: (1) effect size truncation (truncation of Pearson’s correlations between {-1, 1}), (2), reliability truncation (truncation of reliability between {0, 1}), and (3) heterogeneity truncation (truncation of heterogeneity estimates to be non-negative).
@@ -162,7 +162,7 @@ Overall, the net bias in heterogeneity estimates due to imperfect reliability in
 Figure 2 shows the net bias in heterogeneity estimates for different levels of heterogeneity (measured in $\tau$) and meta-analytic models. Each column of Figure 2 corresponds to one nominal level of actual heterogeneity ($\tau$ $\epsilon$ {0, 0.1, 0.15, 0.2}) and each row to a different analysis (HV with Fisher z, HV with Pearson's $r$, and HS). The black solid lines indicate actual heterogeneity, which may differ from nominal heterogeneity because of effect size truncation or, in the case of Fisher z, because the comparable heterogeneity levels were slightly different (as discussed in the method section). The different dashed lines in Figure 2 show the $\tau$ ̂ estimates for four different levels of average reliability across primary studies, and the x-axis shows the average (superpopulation) effect size. As can be seen, the bias is marginally worse for Fisher z than the other two methods (although Fisher z is on a different scale), but the results are approximately the same for all three methods. As such, in the remainder of the results, we will focus on Pearson’s $r$ (row two).
 
 ```{r Figure 2, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("../figures/manuscript/z-r-hs-plot.png")
+knitr::include_graphics("../figures/manuscript/z-r-hs-plot.pdf")
 ```
 
 _Figure 2. Unreliability in primary studies leads to a net negative bias when heterogeneity is positive. The x-axis indicates average effect size and the y-axis estimated heterogeneity in standard deviations averaged across 10,000 replications. Columns indicate the nominal true heterogeneity standard deviation $\tau$. Due to truncation in Pearson’s r or translation to Fisher’s z these values may differ from actual true heterogeneity standard deviation (black solid lines). Each dashed line corresponds to an average reliability in primary studies. Results are for standard deviation in reliability = 0.15, within-study sample size = 150, and 20 studies within each meta-analysis. Code to reproduce figure: LINK._
@@ -174,7 +174,7 @@ For all true heterogeneity levels in Figure 2 above zero, we see an overall unde
 To explore further under what conditions the forces of inflation and suppression of heterogeneity reach an equilibrium, we added an analysis for several conditions with $\tau$ < 0.1. We used the following values {0.02, 0.04, 0.06, 0.08}. Figure 3 presents the results of this analysis for Pearson's $r$. Because these lower heterogeneity levels can be expected to be affected by heterogeneity truncation to a larger extent (which results in inflation), we present results for four different numbers of studies in the meta-analysis (rows Figure 3, lower k is associated with larger inflation of estimates). The standard deviation in reliabilities is again 0.15. Figure 3 shows that even when only little heterogeneity is present, it will generally be underestimated. If μ < 0.3 then imperfect reliability leads to a negative bias in heterogeneity estimates for all $\tau$ < 0.06 in Pearson's $r$. Even for the lower levels of true heterogeneity, estimates of heterogeneity will generally be positively biased only when average effect size is large, or the number of meta-analyzed studies is small.
 
 ```{r Figure 3, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("../figures/manuscript/r_tau_0.02-0.08.png")
+knitr::include_graphics("../figures/manuscript/r_tau_0.02-0.08.pdf")
 ```
 
 _Figure 3. Unreliability in primary studies typically leads to a net negative bias even for small degrees of heterogeneity. Effect size is Pearson’s r and rows indicate the number of studies in the meta-analysis. The x-axis indicates average effect size and the y-axis estimated heterogeneity in standard deviations averaged across 10,000 replications. Columns indicate the nominal true heterogeneity standard deviation $\tau$. Due to effect size truncation in Pearson’s r these values may differ from actual true heterogeneity standard deviation (black solid lines). Each dashed line corresponds to an average reliability in primary studies. Results are for standard deviation in reliability = 0.15, within-study sample size = 150. Code to reproduce figure: LINK._
@@ -184,7 +184,7 @@ Finally, smaller sample sizes in primary studies tend to exacerbate the bias in 
 
 
 ```{r Figure 4, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("../figures/manuscript/sample_size.png")
+knitr::include_graphics("../figures/manuscript/sample_size.pdf")
 ```
 
 

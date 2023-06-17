@@ -115,6 +115,7 @@ facet_grid(effect_type~nominal_tau, scales = "free", switch = "y") +
 theme_bw()
 
 #ggsave("figures/manuscript/z-r-hs-plot.png", width = 8.62, height = 9.93)
+#ggsave("figures/manuscript/z-r-hs-plot.pdf", width = 8.62, height = 9.93)
 
 
 # Figure 2 (r, N = 150, k variable, tau low)
@@ -158,6 +159,7 @@ theme_bw()
 
 
 #ggsave("figures/manuscript/r_tau_0.02-0.08.png", width = 8.62, height = 9.93)
+#ggsave("figures/manuscript/r_tau_0.02-0.08.pdf", width = 8.62, height = 9.93)
 
 # Figure 3 (variable sample size)
 #****************************************
@@ -195,6 +197,7 @@ facet_grid(N~nominal_tau, scales = "free") +
 theme_bw()
 
 #ggsave("figures/manuscript/sample_size.png", width = 8.62, height = 9.93)
+#ggsave("figures/manuscript/sample_size.pdf", width = 8.62, height = 9.93)
 
 #****************************************
 # supplement C plots (supplemental main results)
@@ -242,6 +245,7 @@ facet_grid(reliability_sd~nominal_tau, scales = "free") +
 theme_bw()
 
 #ggsave("figures/supplement/supplement_C_fig1.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_C_fig1.pdf", width = 8.62, height = 9.93)
 
 
 # supplement C figure 2 (variable k)
@@ -283,6 +287,7 @@ facet_grid(k~nominal_tau, scales = "free") +
 theme_bw()
 
 #ggsave("figures/supplement/supplement_C_fig2.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_C_fig2.pdf", width = 8.62, height = 9.93)
 
 
 #****************************************
@@ -343,6 +348,7 @@ facet_grid(effect_type~nominal_tau, scales = "free", switch = "y") +
 theme_bw()
 
 #ggsave("figures/supplement/supplement_A_fig1.png", width = 8.62, height = 9.93)
+ggsave("figures/supplement/supplement_A_fig1.pdf", width = 8.62, height = 9.93)
 
 
 # Figure A2
@@ -461,8 +467,10 @@ trunc <- data.frame(mu = es,
 ggplot(e) +
 geom_line(aes(x = mu, y = tau_hat), linetype = 2) +
 geom_line(aes(x = mu, y = true_tau), data = trunc, linetype = 1) +
-facet_wrap(~nominal_tau) +
+facet_wrap(~nominal_tau, nrow = 1) +
 ylab(expression("Between-studies standard deviation "~tau)) +
-xlab(expression("Average effect size "~mu))
+xlab(expression("Average effect size "~mu)) +
+theme_bw()
 
 #ggsave("figures/supplement/supplement_A_fig2.png", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_A_fig2.pdf", width = 8.62, height = 9.93)
