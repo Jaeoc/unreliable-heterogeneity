@@ -112,7 +112,7 @@ We also use Pearson's $r$. Pearson's $r$ has the advantage that it creates heter
 
 The disadvantage to using Pearson's $r$ when estimating heterogeneity are that (1) the effect size is bounded to {-1, 1} and (2) its sampling variance $\sigma^2_r = \frac{(1-\rho^2)^2}{n - 1}$ depends on the true effect size $\rho$. The bounded nature of the Pearson correlation means that large levels of heterogeneity create substantial truncation of the distribution of effect sizes if the average effect size is also large. That the sampling variance covaries with effect size leads to a small positive bias in heterogeneity estimates (supplement A). This can be solved by replacing $\rho$ with the average correlation across studies $\bar{r}$ [@schmidt2015], or using the Fisher $z$ transformation. Fisher $z$ correlations have the additional advantage that they are not bound to {-1, 1}. A disadvantage to using Fisher $z$ correlations, in addition to interpretability of heterogeneity estimates, is that they require back-transforming into product-moment correlations before adding measurement error, followed by another transformation to Fisher z for meta-analysis. Especially for large Fisher $z$ values (which are common when both average effect size and heterogeneity are large) this transformation process may introduce inaccuracies in the estimates. Given the common use of both effect size types and their mix of advantages and disadvantages we report results for both Fisher's $z$ and Pearson's $r$.
 
-## Meta-analytic modelmet0000498
+## Meta-analytic model
 
 We apply two meta-analytic models to ensure that our results are not model-dependent: the @10.1037/1082-989X.3.4.486 random-effects model and the @schmidt2015 ‘bare-bones’ random-effects model. The Hedges and Vevea (HV) model uses inverse variance weight computed as $w_i = 1 / (V_i + T^2)$ [e.g., @10.1002/jrsm.12] where $V_i$ is the sampling variance of study $i$ and $T^2$ is the estimated between-studies variance. The Hunter and Schmidt (HS) model weighs studies by sample size $w_i = N_i$. The differences between these weights are relatively minor [@10.1002/jrsm.12; @schmidt2015, p. 423-426]. Although the HV model is typically applied to Fisher $z$ transformed correlations [e.g., @borenstein2009a, p. 41-43], we apply it to both transformed and untransformed correlations to enable a more direct comparison with the HS model and facilitate interpretation. The HS model typically includes corrections for unreliability or other measurement artifacts. However, we implement it without corrections [‘bare-bones’, @schmidt2015] because this allows us to focus on the bias in heterogeneity estimates rather than the performance of corrections [e.g., see @10.1037/met0000498 for how well they perform in terms of mean estimates].
 
@@ -124,10 +124,10 @@ Estimating heterogeneity in both the HV and bare-bones HS model essentially cons
 
 Figure 1 provides an overview of the design of this simulation study. Our design was broadly the same for product-moment correlations and Fisher's $z$, with some minor differences we highlight in the text below detailing the procedure.
 
-```{r Figure 1, out.width= "85%"}
+```{r Figure 1, out.width= "90%"}
 #| fig.env: figure*
 #| fig-pos: 't'
-#| fig-cap: "Figure 1. Flowchart summarizing the simulation design."
+#| fig-cap: "Flowchart summarizing the simulation design. For product-moment correlations, option (1) corresponds to the Hedges and Vevea (1998) model and option (2) to the Schmidt and Hunter (2015) model (see methods section 'Meta-analytic model'). $\\theta$ = average true effect size (i.e., without sampling or measurement error), $\\tau^2$ = variance of true effect sizes, $\\theta_i$ = study true effect size, $\\gamma_i$ = study effect size with sampling error $\\sigma_i^2$, $N_i$ = study sample size, $R_i$ = study reliability, $\\bar{R}$ = average reliability across studies, $\\delta$ = standard deviation of reliabilities across studies, $r_i$ = observed study effect size with sampling and measurement error, $\\bar{r}$ = average observed effect size across studies."
 
 
 knitr::include_graphics("../figures/manuscript/flowchart-simulation-design.pdf")
