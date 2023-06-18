@@ -40,7 +40,7 @@ positive_bias_table <- table1 %>%
   kable_styling(position = "left") %>%
   add_header_above(c(" " = 2, "Study 1"= 1, "Study 2" = 1, "Study 3" = 1, " " = 1 )) %>%
   add_header_above(c(" " = 2, "Observed Effect Sizes" = 3, " " = 1)) %>%
-  footnote(general = "Reproduced from Olsson Collentine et al. (2020). The values under Study 1, 2 and 3 are observed effect sizes for that study given its measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size $\\\\rho_{xy}$ when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes for meta-analysis I, II and III, equivalent to heterogeneity given infinite within-study sample sizes. As true heterogeneity is absent, any SD(ES) values above zero represent bias. Code to reproduce table: LINK",
+  footnote(general = "Reproduced from Olsson Collentine et al. (2020). The values under Study 1, 2 and 3 are observed effect sizes for that study given its measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size $\\\\rho_{xy}$ when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes for meta-analysis I, II and III, equivalent to heterogeneity given infinite within-study sample sizes. As true heterogeneity is absent, any SD(ES) values above zero represent bias. Code to reproduce table: osf.io/f5eyc.",
   threeparttable = TRUE, escape = FALSE, footnote_as_chunk = TRUE)
 
 positive_bias_table
@@ -70,7 +70,7 @@ negative_bias_table <- dat %>%
                caption = "Imperfect reliability suppresses true heterogeneity") %>%
  kable_styling(position = "left") %>%
  add_header_above(c(" " = 1, "Observed Effect Sizes" = 3, " " = 1)) %>%
- footnote(general = "The values under Study 1, 2 and 3 are observed effect sizes for that study given the measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size of that study (first row) when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes, equivalent to heterogeneity given infinite within-study sample sizes. Code to reproduce table: LINK",
+ footnote(general = "The values under Study 1, 2 and 3 are observed effect sizes for that study given the measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size of that study (first row) when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes, equivalent to heterogeneity given infinite within-study sample sizes. Code to reproduce table: osf.io/f5eyc.",
   threeparttable = TRUE, escape = FALSE, footnote_as_chunk = TRUE)
 
 negative_bias_table
