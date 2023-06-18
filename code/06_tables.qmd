@@ -68,7 +68,7 @@ negative_bias_table <- dat %>%
                "SD(ES)"),
                label = "suppress-heterogeneity",
                caption = "Imperfect reliability suppresses true heterogeneity") %>%
- kable_styling(position = "left") %>%
+ kable_styling(position = "left", font_size = 8) %>%
  add_header_above(c(" " = 1, "Observed Effect Sizes" = 3, " " = 1)) %>%
  footnote(general = "The values under Study 1, 2 and 3 are observed effect sizes for that study given the measurement reliability $\\\\sqrt{R_{xx'}}\\\\times\\\\sqrt{R_{yy'}}$ and the true effect size of that study (first row) when within-study sample size is infinite. SD (ES) is the standard deviation of the observed effect sizes, equivalent to heterogeneity given infinite within-study sample sizes. Code to reproduce table: osf.io/f5eyc.",
   threeparttable = TRUE, escape = FALSE, footnote_as_chunk = TRUE)
