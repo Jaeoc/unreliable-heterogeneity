@@ -114,8 +114,8 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(effect_type~nominal_tau, scales = "free", switch = "y") +
 theme_bw()
 
-#ggsave("figures/manuscript/z-r-hs-plot.png", width = 8.62, height = 9.93)
-#ggsave("figures/manuscript/z-r-hs-plot.pdf", width = 8.62, height = 9.93)
+#ggsave("figures/manuscript/z-r-hs-plot.png", width = 6*1.4, height = 6)
+#ggsave("figures/manuscript/z-r-hs-plot.pdf", width = 6*1.4, height = 6)
 
 
 # Figure 2 (r, N = 150, k variable, tau low)
@@ -158,8 +158,8 @@ facet_grid(k~nominal_tau, scales = "free") +
 theme_bw()
 
 
-#ggsave("figures/manuscript/r_tau_0.02-0.08.png", width = 8.62, height = 9.93)
-#ggsave("figures/manuscript/r_tau_0.02-0.08.pdf", width = 8.62, height = 9.93)
+#ggsave("figures/manuscript/r_tau_0.02-0.08.png", width = 6*1.4, height = 6)
+#ggsave("figures/manuscript/r_tau_0.02-0.08.pdf", width = 6*1.4, height = 6)
 
 # Figure 3 (variable sample size)
 #****************************************
@@ -196,8 +196,8 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(N~nominal_tau, scales = "free") +
 theme_bw()
 
-#ggsave("figures/manuscript/sample_size.png", width = 8.62, height = 9.93)
-#ggsave("figures/manuscript/sample_size.pdf", width = 8.62, height = 9.93)
+#ggsave("figures/manuscript/sample_size.png", width = 6*1.4, height = 6)
+#ggsave("figures/manuscript/sample_size.pdf", width = 6*1.4, height = 6)
 
 #****************************************
 # supplement C plots (supplemental main results)
@@ -227,12 +227,6 @@ trunc_a <- data.frame(mu = es,
                     nominal_tau = rep(tau, each = length(es)),
                     true_tau = tau_trunc)
 
-trunc_a$true_tau <- trunc_a$nominal_tau
-trunc_a$tau_hat <- trunc_a$tau
-
-
-# NB! the object true_tau_line below comes from Figure 1 main manuscript section
-
 ggplot(dat_a, aes(x = mu, y = tau_hat)) +
 geom_line(aes(linetype = reliability_mean), show.legend = TRUE) +
 scale_linetype_manual(values = 2:5) +
@@ -244,8 +238,8 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(reliability_sd~nominal_tau, scales = "free") +
 theme_bw()
 
-#ggsave("figures/supplement/supplement_C_fig1.png", width = 8.62, height = 9.93)
-#ggsave("figures/supplement/supplement_C_fig1.pdf", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_C_fig1.png", width = 6*1.4, height = 6)
+#ggsave("figures/supplement/supplement_C_fig1.pdf", width = 6*1.4, height = 6)
 
 
 # supplement C figure 2 (variable k)
@@ -269,11 +263,6 @@ trunc_b <- data.frame(mu = es,
                     nominal_tau = rep(tau, each = length(es)),
                     true_tau = tau_trunc)
 
-trunc_b$true_tau <- trunc_b$nominal_tau
-trunc_b$tau_hat <- trunc_b$tau
-
-
-# NB! the object true_tau_line below comes from Figure 1 main manuscript section
 
 ggplot(dat_b, aes(x = mu, y = tau_hat)) +
 geom_line(aes(linetype = reliability_mean), show.legend = TRUE) +
@@ -286,8 +275,8 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(k~nominal_tau, scales = "free") +
 theme_bw()
 
-#ggsave("figures/supplement/supplement_C_fig2.png", width = 8.62, height = 9.93)
-#ggsave("figures/supplement/supplement_C_fig2.pdf", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_C_fig2.png", width = 6*1.4, height = 6)
+#ggsave("figures/supplement/supplement_C_fig2.pdf", width = 6*1.4, height = 6)
 
 
 #****************************************
@@ -347,8 +336,8 @@ xlab(expression("Average effect size "~mu)) +
 facet_grid(effect_type~nominal_tau, scales = "free", switch = "y") +
 theme_bw()
 
-#ggsave("figures/supplement/supplement_A_fig1.png", width = 8.62, height = 9.93)
-ggsave("figures/supplement/supplement_A_fig1.pdf", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_A_fig1.png", width = 6*1.4, height = 6)
+#ggsave("figures/supplement/supplement_A_fig1.pdf", width = 6*1.4, height = 6)
 
 
 # Figure A2
@@ -472,5 +461,5 @@ ylab(expression("Between-studies standard deviation "~tau)) +
 xlab(expression("Average effect size "~mu)) +
 theme_bw()
 
-#ggsave("figures/supplement/supplement_A_fig2.png", width = 8.62, height = 3.31)
-#ggsave("figures/supplement/supplement_A_fig2.pdf", width = 8.62, height = 3.31)
+#ggsave("figures/supplement/supplement_A_fig2.png", width = 6*1.4, height = 2)
+#ggsave("figures/supplement/supplement_A_fig2.pdf", width = 6*1.4, height = 2)
