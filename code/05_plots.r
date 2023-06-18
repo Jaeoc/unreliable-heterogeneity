@@ -472,5 +472,5 @@ ylab(expression("Between-studies standard deviation "~tau)) +
 xlab(expression("Average effect size "~mu)) +
 theme_bw()
 
-#ggsave("figures/supplement/supplement_A_fig2.png", width = 8.62, height = 9.93)
-#ggsave("figures/supplement/supplement_A_fig2.pdf", width = 8.62, height = 9.93)
+#ggsave("figures/supplement/supplement_A_fig2.png", width = 8.62, height = 3.31)
+#ggsave("figures/supplement/supplement_A_fig2.pdf", width = 8.62, height = 3.31)
