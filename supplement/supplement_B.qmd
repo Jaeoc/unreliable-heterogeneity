@@ -1,17 +1,17 @@
 ---
-
 format: pdf
-
 ---
-# Supplement B: converting heterogeneity between Pearson's r and Fisher's z
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 ```
 
+# Supplement B: converting heterogeneity between Pearson's r and Fisher's z
+
 The table below shows the results of our procedure to convert between studies variance expressed in Pearson's $r$ to between-studies variance expressed in Fisher's $z$ through the use of $I^2$ as described in the main text.
 
 _Table B1_.
+
 ```{r}
 
 source("../code/01_compute_tau_fishers_z.r") #all computations were made here
